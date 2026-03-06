@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Image from "next/image";
 
+const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
+
 /* ─── Shared Animation Variants ─── */
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -56,7 +58,7 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
         className="text-center"
       >
         <Image
-          src="/images/logos/logo-white.png"
+          src={`${BASE}/images/logos/logo-white.png`}
           alt="Asian American Dream"
           width={220}
           height={80}
@@ -104,7 +106,7 @@ function Navbar() {
         {/* Logo */}
         <a href="#" className="flex items-center gap-2">
           <Image
-            src={scrolled ? "/images/logos/logo-black.png" : "/images/logos/logo-white.png"}
+            src={scrolled ? `${BASE}/images/logos/logo-black.png` : `${BASE}/images/logos/logo-white.png`}
             alt="Asian American Dream"
             width={140}
             height={48}
@@ -203,7 +205,7 @@ function Hero() {
       {/* Full-bleed hero group photo */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero-group.jpg"
+          src={`${BASE}/images/hero-group.jpg`}
           alt="Asian American Dream community group photo"
           fill
           className="object-cover"
@@ -263,7 +265,7 @@ function Hero() {
                     className="w-11 h-11 rounded-full border-2 border-white overflow-hidden relative"
                   >
                     <Image
-                      src={`/images/team/${name}.jpg`}
+                      src={`${BASE}/images/team/${name}.jpg`}
                       alt=""
                       fill
                       className="object-cover"
@@ -322,7 +324,7 @@ function About() {
               <div className="bg-off-white rounded-3xl p-8 md:p-10 relative overflow-hidden">
                 <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-6">
                   <Image
-                    src="/images/events/event-1.jpg"
+                    src={`${BASE}/images/events/event-1.jpg`}
                     alt="AADream community event"
                     fill
                     className="object-cover"
@@ -362,19 +364,19 @@ const programData = [
     title: "Mentorship",
     description:
       "One-on-one pairing with accomplished AAPI professionals who provide guidance, support, and inspiration throughout the academic journey.",
-    image: "/images/programs/program-1.jpg",
+    image: `${BASE}/images/programs/program-1.jpg`,
   },
   {
     title: "Professional Development",
     description:
       "Workshops, resume reviews, interview prep, and skill-building sessions designed specifically for AAPI undergraduates entering the workforce.",
-    image: "/images/programs/program-2.jpg",
+    image: `${BASE}/images/programs/program-2.jpg`,
   },
   {
     title: "Career Advancement",
     description:
       "Networking events, industry connections, and pathways to internships and full-time roles that help students launch meaningful careers.",
-    image: "/images/programs/program-3.jpg",
+    image: `${BASE}/images/programs/program-3.jpg`,
   },
 ];
 
@@ -423,7 +425,7 @@ function Programs() {
             {[4, 5, 6, 7, 8].map((n) => (
               <div key={n} className="relative aspect-square rounded-2xl overflow-hidden">
                 <Image
-                  src={`/images/programs/program-${n}.jpg`}
+                  src={`${BASE}/images/programs/program-${n}.jpg`}
                   alt={`Program activity ${n}`}
                   fill
                   className="object-cover hover:scale-110 transition-transform duration-500"
@@ -514,27 +516,27 @@ function Impact() {
 
 /* ─── 7. Team - Board & Advisory with Real Photos ─── */
 const boardMembers = [
-  { name: "Jack Tran", role: "Chair", image: "/images/team/jack-tran.jpg" },
-  { name: "James Cheng", role: "Vice-Chair", image: "/images/team/james-cheng.jpg" },
-  { name: "Jason Huang", role: "Treasurer", image: "/images/team/jason-huang.jpg" },
-  { name: "Andrew Pandolfo", role: "Secretary", image: "/images/team/andrew-pandolfo.jpg" },
-  { name: "Kevin Ha", role: "Director", image: "/images/team/kevin-ha.jpg" },
-  { name: "Carteneil Cheung", role: "Director", image: "/images/team/carteneil-cheung.jpg" },
-  { name: "Jocelyn Cruz-Alfalla", role: "Director", image: "/images/team/jocelyn-cruz-alfalla.png" },
-  { name: "Roger Kim", role: "Director", image: "/images/team/roger-kim.jpg" },
-  { name: "James Liao", role: "Director", image: "/images/team/james-liao.jpg" },
-  { name: "Kevin Vuong", role: "Director", image: "/images/team/kevin-vuong.jpg" },
-  { name: "Yuko Yates", role: "Director", image: "/images/team/yuko-yates.jpg" },
-  { name: "Jennifer Young", role: "Director", image: "/images/team/jennifer-young.jpg" },
+  { name: "Jack Tran", role: "Chair", image: `${BASE}/images/team/jack-tran.jpg` },
+  { name: "James Cheng", role: "Vice-Chair", image: `${BASE}/images/team/james-cheng.jpg` },
+  { name: "Jason Huang", role: "Treasurer", image: `${BASE}/images/team/jason-huang.jpg` },
+  { name: "Andrew Pandolfo", role: "Secretary", image: `${BASE}/images/team/andrew-pandolfo.jpg` },
+  { name: "Kevin Ha", role: "Director", image: `${BASE}/images/team/kevin-ha.jpg` },
+  { name: "Carteneil Cheung", role: "Director", image: `${BASE}/images/team/carteneil-cheung.jpg` },
+  { name: "Jocelyn Cruz-Alfalla", role: "Director", image: `${BASE}/images/team/jocelyn-cruz-alfalla.png` },
+  { name: "Roger Kim", role: "Director", image: `${BASE}/images/team/roger-kim.jpg` },
+  { name: "James Liao", role: "Director", image: `${BASE}/images/team/james-liao.jpg` },
+  { name: "Kevin Vuong", role: "Director", image: `${BASE}/images/team/kevin-vuong.jpg` },
+  { name: "Yuko Yates", role: "Director", image: `${BASE}/images/team/yuko-yates.jpg` },
+  { name: "Jennifer Young", role: "Director", image: `${BASE}/images/team/jennifer-young.jpg` },
 ];
 
 const advisoryMembers = [
-  { name: "Alex Chester-Iwata", image: "/images/team/alex-chester-iwata.jpg" },
-  { name: "Timothy Fong", image: "/images/team/timothy-fong.jpg" },
-  { name: "Esther Kim", image: "/images/team/esther-kim.jpg" },
-  { name: "Jerry Lee", image: "/images/team/jerry-lee.jpg" },
-  { name: "Dawn Lucovich", image: "/images/team/dawn-lucovich.jpg" },
-  { name: "Rhea Mahajan", image: "/images/team/rhea-mahajan.jpg" },
+  { name: "Alex Chester-Iwata", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
+  { name: "Timothy Fong", image: `${BASE}/images/team/timothy-fong.jpg` },
+  { name: "Esther Kim", image: `${BASE}/images/team/esther-kim.jpg` },
+  { name: "Jerry Lee", image: `${BASE}/images/team/jerry-lee.jpg` },
+  { name: "Dawn Lucovich", image: `${BASE}/images/team/dawn-lucovich.jpg` },
+  { name: "Rhea Mahajan", image: `${BASE}/images/team/rhea-mahajan.jpg` },
 ];
 
 function Team() {
@@ -619,21 +621,21 @@ const testimonials = [
       "[Testimonial placeholder — awaiting real quote from program participant]",
     name: "[Name]",
     role: "[Role / Program Year]",
-    avatar: "/images/team/esther-kim.jpg",
+    avatar: `${BASE}/images/team/esther-kim.jpg`,
   },
   {
     quote:
       "[Testimonial placeholder — awaiting real quote from program participant]",
     name: "[Name]",
     role: "[Role / Program Year]",
-    avatar: "/images/team/timothy-fong.jpg",
+    avatar: `${BASE}/images/team/timothy-fong.jpg`,
   },
   {
     quote:
       "[Testimonial placeholder — awaiting real quote from program participant]",
     name: "[Name]",
     role: "[Role / Program Year]",
-    avatar: "/images/team/rhea-mahajan.jpg",
+    avatar: `${BASE}/images/team/rhea-mahajan.jpg`,
   },
 ];
 
@@ -659,7 +661,7 @@ function Community() {
                 className="relative aspect-[3/2] rounded-2xl overflow-hidden group"
               >
                 <Image
-                  src={`/images/events/event-${n}.jpg`}
+                  src={`${BASE}/images/events/event-${n}.jpg`}
                   alt={`AADream event ${n}`}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -760,7 +762,7 @@ function CTA() {
       {/* Background with event image */}
       <div className="absolute inset-0">
         <Image
-          src="/images/events/event-2.jpg"
+          src={`${BASE}/images/events/event-2.jpg`}
           alt=""
           fill
           className="object-cover"
@@ -818,7 +820,7 @@ function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <Image
-              src="/images/logos/logo-white.png"
+              src={`${BASE}/images/logos/logo-white.png`}
               alt="Asian American Dream"
               width={160}
               height={56}
