@@ -29,3 +29,43 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sora), Arial, Helvetica, sans-serif;
 }
+
+/* Event article prose */
+.prose-aad p {
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #374151;
+  margin-bottom: 1.25rem;
+}
+
+.prose-aad h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-aad h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-aad strong {
+  color: #111827;
+  font-weight: 600;
+}
+
+.prose-aad a {
+  color: #1A6B7A;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-aad a:hover {
+  color: #4FD1C7;
+}

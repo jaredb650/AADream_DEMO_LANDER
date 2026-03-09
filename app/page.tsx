@@ -132,7 +132,9 @@ function Navbar() {
             </a>
           ))}
           <a
-            href="#donate"
+            href="https://givebutter.com/asianamericandream"
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-inter font-semibold text-sm bg-warm-gold text-navy px-6 py-2.5 rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
           >
             Donate
@@ -184,7 +186,9 @@ function Navbar() {
                 </a>
               ))}
               <a
-                href="#donate"
+                href="https://givebutter.com/asianamericandream"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setMobileOpen(false)}
                 className="font-inter font-semibold text-sm bg-warm-gold text-navy px-6 py-3 rounded-full text-center mt-2"
               >
@@ -247,13 +251,12 @@ function Hero() {
               >
                 Donate
               </a>
-              <button
-                type="button"
-                aria-disabled="true"
-                className="font-inter font-semibold text-base bg-white/10 backdrop-blur-sm text-white border border-white/25 px-8 py-3.5 rounded-full hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+              <a
+                href="mailto:kevin@asianamericandream.org?subject=Partnership%20Inquiry"
+                className="font-inter font-semibold text-base bg-white/10 backdrop-blur-sm text-white border border-white/25 px-8 py-3.5 rounded-full hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
               >
                 Partner With Us
-              </button>
+              </a>
             </div>
           </motion.div>
 
@@ -315,14 +318,15 @@ function About() {
                 Bridging the Gap for AAPI Communities
               </motion.h2>
               <motion.p variants={fadeUp} className="font-inter text-base md:text-lg text-dark-gray leading-relaxed mb-5">
-                Founded in May 2021, Asian American Dream was born from the recognition that
-                first-generation, low-income AAPI undergraduates in New York face unique challenges
-                in accessing mentorship and career opportunities.
+                Founded in May 2021, our mission is to provide mentorship networks, professional
+                development training, and career advancement opportunities for underserved AAPI
+                undergraduates, with the goal of helping them achieve their unique vision of the
+                Asian American dream.
               </motion.p>
               <motion.p variants={fadeUp} className="font-inter text-base md:text-lg text-dark-gray leading-relaxed">
-                We provide the community, guidance, and resources needed to transform aspirations into
-                achievements - connecting students with mentors, professional development, and career
-                pathways.
+                First-generation, low-income AAPI undergraduates in New York face unique challenges
+                in accessing mentorship and career opportunities. We provide the community, guidance,
+                and resources needed to transform aspirations into achievements.
               </motion.p>
             </div>
 
@@ -422,8 +426,11 @@ const programData = [
 ];
 
 function Programs() {
-  const [activeProgram, setActiveProgram] = useState(0);
-  const selectedProgram = programData[activeProgram];
+  const [activeProgram, setActiveProgram] = useState<number | null>(null);
+
+  const toggleProgram = (index: number) => {
+    setActiveProgram(activeProgram === index ? null : index);
+  };
 
   return (
     <section id="programs" className="py-16 md:py-24 bg-off-white">
@@ -437,129 +444,129 @@ function Programs() {
               Our Programs
             </h2>
             <p className="font-inter text-base md:text-lg text-dark-gray max-w-3xl mx-auto mt-4 leading-relaxed">
-              Explore the three programs currently featured on AAD&apos;s live site. Each one
-              expands with more detail, and active application links are included where available.
+              Three programs designed to support AAPI undergraduates at every stage of their
+              professional journey. Click any program to learn more.
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {programData.map((p, index) => (
-              <motion.button
-                key={p.title}
-                type="button"
-                onClick={() => setActiveProgram(index)}
-                variants={fadeUp}
-                className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group border ${
-                  activeProgram === index
-                    ? "border-deep-teal ring-2 ring-deep-teal/15"
-                    : "border-transparent"
-                }`}
-              >
-                <div className="relative w-full aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={p.image}
-                    alt={p.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                </div>
-                <div className="p-7">
-                  <p className="font-inter text-xs font-semibold tracking-[0.08em] uppercase text-deep-teal mb-3">
-                    Click to expand
-                  </p>
-                  <h3 className="font-sora font-semibold text-xl md:text-2xl text-charcoal mb-3">
-                    {p.title}
-                  </h3>
-                  <p className="font-inter text-base text-dark-gray leading-relaxed mb-4">
-                    {p.tagline}
-                  </p>
-                  <span className="font-inter text-sm font-semibold text-deep-teal">
-                    {activeProgram === index ? "Expanded below" : "View details"}
-                  </span>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-
-          <motion.div
-            key={selectedProgram.title}
-            variants={fadeUp}
-            className="mt-8 rounded-[32px] bg-white p-6 md:p-8 shadow-[0_12px_40px_rgba(15,42,68,0.08)] border border-white/80"
-          >
-            <div className="grid lg:grid-cols-[1.1fr_1.3fr] gap-8 md:gap-10 items-start">
-              <div>
-                <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden">
-                  <Image
-                    src={selectedProgram.image}
-                    alt={selectedProgram.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 45vw"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <span className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-deep-teal mb-3">
-                  Program Details
-                </span>
-                <h3 className="font-sora font-semibold text-[26px] md:text-[36px] leading-[1.15] text-charcoal mb-4">
-                  {selectedProgram.title}
-                </h3>
-                <p className="font-inter text-lg text-charcoal font-medium leading-relaxed mb-4">
-                  {selectedProgram.tagline}
-                </p>
-                <p className="font-inter text-base md:text-lg text-dark-gray leading-relaxed mb-4">
-                  {selectedProgram.description}
-                </p>
-                <p className="font-inter text-base md:text-lg text-dark-gray leading-relaxed mb-6">
-                  {selectedProgram.details}
-                </p>
-
-                <div className="grid sm:grid-cols-3 gap-3 mb-6">
-                  {selectedProgram.highlights.map((highlight) => (
-                    <div
-                      key={highlight}
-                      className="rounded-2xl bg-off-white px-4 py-4 font-inter text-sm text-dark-gray leading-relaxed border border-light-gray"
-                    >
-                      {highlight}
-                    </div>
-                  ))}
-                </div>
-
-                {selectedProgram.partners ? (
-                  <div className="rounded-2xl bg-navy/[0.03] border border-navy/10 px-5 py-4 mb-6">
-                    <p className="font-inter text-xs font-semibold tracking-[0.08em] uppercase text-deep-teal mb-2">
-                      Partners
-                    </p>
-                    <p className="font-inter text-sm md:text-base text-dark-gray leading-relaxed">
-                      {selectedProgram.partners}
-                    </p>
-                  </div>
-                ) : null}
-
-                <div className="flex flex-wrap gap-4">
-                  {selectedProgram.applicationHref ? (
-                    <a
-                      href={selectedProgram.applicationHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-inter font-semibold text-base bg-deep-teal text-white px-7 py-3.5 rounded-full hover:bg-navy hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
-                    >
-                      {selectedProgram.applicationLabel}
-                    </a>
-                  ) : null}
-                  <a
-                    href="#donate"
-                    className="font-inter font-semibold text-base border-2 border-deep-teal text-deep-teal px-7 py-3.5 rounded-full hover:bg-deep-teal hover:text-white transition-all duration-300"
+            {programData.map((p, index) => {
+              const isActive = activeProgram === index;
+              return (
+                <motion.div
+                  key={p.title}
+                  variants={fadeUp}
+                  className="flex flex-col"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleProgram(index)}
+                    className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group border ${
+                      isActive
+                        ? "border-deep-teal ring-2 ring-deep-teal/15"
+                        : "border-transparent"
+                    }`}
                   >
-                    Support This Program
-                  </a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+                    <div className="relative w-full aspect-[4/3] overflow-hidden">
+                      <Image
+                        src={p.image}
+                        alt={p.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    </div>
+                    <div className="p-7">
+                      <h3 className="font-sora font-semibold text-xl md:text-2xl text-charcoal mb-3">
+                        {p.title}
+                      </h3>
+                      <p className="font-inter text-base text-dark-gray leading-relaxed mb-4">
+                        {p.tagline}
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 font-inter text-sm font-semibold text-deep-teal">
+                        {isActive ? "Show less" : "View details"}
+                        <motion.svg
+                          className="w-4 h-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                          animate={{ rotate: isActive ? 180 : 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </motion.svg>
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Inline expanded details */}
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-4 rounded-3xl bg-white p-6 shadow-[0_8px_32px_rgba(15,42,68,0.08)] border border-light-gray">
+                          <p className="font-inter text-base text-dark-gray leading-relaxed mb-3">
+                            {p.description}
+                          </p>
+                          <p className="font-inter text-base text-dark-gray leading-relaxed mb-5">
+                            {p.details}
+                          </p>
+
+                          <div className="space-y-2 mb-5">
+                            {p.highlights.map((highlight) => (
+                              <div
+                                key={highlight}
+                                className="flex items-start gap-2.5"
+                              >
+                                <svg className="w-5 h-5 mt-0.5 flex-shrink-0 text-bright-turquoise" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                <span className="font-inter text-sm text-dark-gray leading-relaxed">
+                                  {highlight}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {p.partners ? (
+                            <p className="font-inter text-xs text-dark-gray mb-5 bg-off-white rounded-xl px-4 py-3 border border-light-gray">
+                              <span className="font-semibold text-deep-teal uppercase tracking-wider">Partners: </span>
+                              {p.partners}
+                            </p>
+                          ) : null}
+
+                          <div className="flex flex-wrap gap-3">
+                            {p.applicationHref ? (
+                              <a
+                                href={p.applicationHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-inter font-semibold text-sm bg-deep-teal text-white px-6 py-3 rounded-full hover:bg-navy hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+                              >
+                                {p.applicationLabel}
+                              </a>
+                            ) : null}
+                            <a
+                              href="#donate"
+                              className="font-inter font-semibold text-sm border-2 border-deep-teal text-deep-teal px-6 py-3 rounded-full hover:bg-deep-teal hover:text-white transition-all duration-300"
+                            >
+                              Support This Program
+                            </a>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </div>
 
           {/* Program gallery strip */}
           <motion.div variants={fadeUp} className="mt-10 grid grid-cols-5 gap-3">
@@ -657,27 +664,27 @@ function Impact() {
 
 /* ─── 7. Team - Board & Advisory with Real Photos ─── */
 const boardMembers = [
-  { name: "Jack Tran", role: "Chair", image: `${BASE}/images/team/jack-tran.jpg` },
-  { name: "James Cheng", role: "Vice-Chair", image: `${BASE}/images/team/james-cheng.jpg` },
-  { name: "Jason Huang", role: "Treasurer", image: `${BASE}/images/team/jason-huang.jpg` },
-  { name: "Andrew Pandolfo", role: "Secretary", image: `${BASE}/images/team/andrew-pandolfo.jpg` },
-  { name: "Kevin Ha", role: "Director", image: `${BASE}/images/team/kevin-ha.jpg` },
-  { name: "Carteneil Cheung", role: "Director", image: `${BASE}/images/team/carteneil-cheung.jpg` },
-  { name: "Jocelyn Cruz-Alfalla", role: "Director", image: `${BASE}/images/team/jocelyn-cruz-alfalla.png` },
-  { name: "Roger Kim", role: "Director", image: `${BASE}/images/team/roger-kim.jpg` },
-  { name: "James Liao", role: "Director", image: `${BASE}/images/team/james-liao.jpg` },
-  { name: "Kevin Vuong", role: "Director", image: `${BASE}/images/team/kevin-vuong.jpg` },
-  { name: "Yuko Yates", role: "Director", image: `${BASE}/images/team/yuko-yates.jpg` },
-  { name: "Jennifer Young", role: "Director", image: `${BASE}/images/team/jennifer-young.jpg` },
+  { name: "Jack Tran", role: "Chair", title: "Strategy & Product Management, American Express", image: `${BASE}/images/team/jack-tran.jpg` },
+  { name: "James Cheng", role: "Vice-Chair", title: "Global Senior Director of DEI, Zimmer Biomet", image: `${BASE}/images/team/james-cheng.jpg` },
+  { name: "Jason Huang", role: "Treasurer", title: "Financial Advisor, Oppenheimer Co.", image: `${BASE}/images/team/jason-huang.jpg` },
+  { name: "Andrew Pandolfo", role: "Secretary", title: "", image: `${BASE}/images/team/andrew-pandolfo.jpg` },
+  { name: "Kevin Ha", role: "Founder & Executive Director", title: "2024-2025 Obama USA Leader", image: `${BASE}/images/team/kevin-ha.jpg` },
+  { name: "Carteneil Cheung", role: "Director", title: "Associate General Counsel, McKinsey & Company", image: `${BASE}/images/team/carteneil-cheung.jpg` },
+  { name: "Jocelyn Cruz-Alfalla", role: "Director", title: "Dir. of Community & Schools Tennis, USTA Eastern", image: `${BASE}/images/team/jocelyn-cruz-alfalla.png` },
+  { name: "Roger Kim", role: "Director", title: "Managing Director, Societe Generale", image: `${BASE}/images/team/roger-kim.jpg` },
+  { name: "James Liao", role: "Director", title: "President, Salem Consultants Inc.", image: `${BASE}/images/team/james-liao.jpg` },
+  { name: "Kevin Vuong", role: "Director", title: "SVP Global Store & Workplace Experience, Capri Holdings", image: `${BASE}/images/team/kevin-vuong.jpg` },
+  { name: "Yuko Yates", role: "Director", title: "SVP Business Support Executive, Bank of America Legal", image: `${BASE}/images/team/yuko-yates.jpg` },
+  { name: "Jennifer Young", role: "Director", title: "Senior Principal, Google Cloud", image: `${BASE}/images/team/jennifer-young.jpg` },
 ];
 
 const advisoryMembers = [
-  { name: "Alex Chester-Iwata", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
-  { name: "Timothy Fong", image: `${BASE}/images/team/timothy-fong.jpg` },
-  { name: "Esther Kim", image: `${BASE}/images/team/esther-kim.jpg` },
-  { name: "Jerry Lee", image: `${BASE}/images/team/jerry-lee.jpg` },
-  { name: "Dawn Lucovich", image: `${BASE}/images/team/dawn-lucovich.jpg` },
-  { name: "Rhea Mahajan", image: `${BASE}/images/team/rhea-mahajan.jpg` },
+  { name: "Alex Chester-Iwata", title: "Founder, Mixed Asian Media", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
+  { name: "Timothy Fong", title: "Senior Systems Specialist, Warburg Pincus", image: `${BASE}/images/team/timothy-fong.jpg` },
+  { name: "Esther Kim", title: "Program Manager, Microsoft Azure", image: `${BASE}/images/team/esther-kim.jpg` },
+  { name: "Jerry Lee", title: "Co-Founder, Wonsulting", image: `${BASE}/images/team/jerry-lee.jpg` },
+  { name: "Dawn Lucovich", title: "Founding Faculty, University of Nagano", image: `${BASE}/images/team/dawn-lucovich.jpg` },
+  { name: "Rhea Mahajan", title: "CPA, SASB FSA Level II", image: `${BASE}/images/team/rhea-mahajan.jpg` },
 ];
 
 function Team() {
@@ -717,6 +724,7 @@ function Team() {
                   </div>
                   <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
                   <p className="font-inter text-xs text-deep-teal font-medium">{m.role}</p>
+                  {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
                 </motion.div>
               ))}
             </div>
@@ -745,6 +753,7 @@ function Team() {
                   </div>
                   <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
                   <p className="font-inter text-xs text-dark-gray">Advisory</p>
+                  {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
                 </motion.div>
               ))}
             </div>
@@ -755,28 +764,34 @@ function Team() {
   );
 }
 
-/* ─── 8. Community Events + Testimonials ─── */
-const testimonials = [
+/* ─── 8. Community Events ─── */
+const events = [
   {
-    quote:
-      "[Testimonial placeholder — awaiting real quote from program participant]",
-    name: "[Name]",
-    role: "[Role / Program Year]",
-    avatar: `${BASE}/images/team/esther-kim.jpg`,
+    title: "2025 AAD Open",
+    date: "June 7, 2025",
+    description:
+      "The third annual tennis fundraiser drew a record 84 players and raised $14,988. Sponsored by Capri Holdings, Happy Tuna, NYC Racquet Sports, and USTA Eastern.",
+    image: `${BASE}/images/events/event-1.jpg`,
+    href: `${BASE}/events/2025-aad-open`,
+    tag: "Fundraiser",
   },
   {
-    quote:
-      "[Testimonial placeholder — awaiting real quote from program participant]",
-    name: "[Name]",
-    role: "[Role / Program Year]",
-    avatar: `${BASE}/images/team/timothy-fong.jpg`,
+    title: "2024 Table of Dreams",
+    date: "December 3, 2024",
+    description:
+      "AAD\u2019s inaugural Giving Tuesday benefit dinner at La D\u1ED3ng in NYC, celebrating community through Vietnamese cuisine. Title sponsored by Mizuho Americas.",
+    image: `${BASE}/images/events/event-2.jpg`,
+    href: `${BASE}/events/table-of-dreams`,
+    tag: "Benefit Dinner",
   },
   {
-    quote:
-      "[Testimonial placeholder — awaiting real quote from program participant]",
-    name: "[Name]",
-    role: "[Role / Program Year]",
-    avatar: `${BASE}/images/team/rhea-mahajan.jpg`,
+    title: "2024 AAD Open",
+    date: "June 8, 2024",
+    description:
+      "Second annual tennis fundraiser at USTA Billie Jean King National Tennis Center. Jocelyn Cruz-Alfalla received the Asian American Dreamer award.",
+    image: `${BASE}/images/events/event-3.jpg`,
+    href: `${BASE}/events/2024-aad-open`,
+    tag: "Fundraiser",
   },
 ];
 
@@ -794,68 +809,59 @@ function Community() {
             </h2>
           </motion.div>
 
-          {/* Event photo gallery */}
-          <motion.div variants={fadeUp} className="grid md:grid-cols-3 gap-4 mb-16">
-            {[1, 2, 3].map((n) => (
-              <div
-                key={n}
-                className="relative aspect-[3/2] rounded-2xl overflow-hidden group"
-              >
-                <Image
-                  src={`${BASE}/images/events/event-${n}.jpg`}
-                  alt={`AADream event ${n}`}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Testimonials */}
-          <motion.div variants={fadeUp} className="text-center mb-10">
-            <h3 className="font-sora font-semibold text-xl md:text-2xl text-charcoal">
-              Voices from Our Community
-            </h3>
-          </motion.div>
-
           <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={i}
+            {events.map((event) => (
+              <motion.a
+                key={event.title}
+                href={event.href}
                 variants={fadeUp}
-                className="bg-white rounded-3xl p-7 md:p-8 relative shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
+                className="group bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300"
               >
-                {/* Quote mark */}
-                <svg
-                  className="w-10 h-10 text-bright-turquoise/30 mb-4"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609L9.978 5.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H0z" />
-                </svg>
-                <p className="font-inter text-base text-dark-gray leading-relaxed mb-6 italic">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full overflow-hidden relative">
-                    <Image
-                      src={t.avatar}
-                      alt={t.name}
-                      fill
-                      className="object-cover"
-                      sizes="44px"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-inter font-semibold text-sm text-charcoal">{t.name}</p>
-                    <p className="font-inter text-xs text-dark-gray">{t.role}</p>
-                  </div>
+                <div className="relative aspect-[3/2] overflow-hidden">
+                  <Image
+                    src={event.image}
+                    alt={event.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy/60 via-transparent to-transparent" />
+                  <span className="absolute top-4 left-4 font-inter text-[11px] font-semibold tracking-wider uppercase bg-white/90 text-deep-teal px-3 py-1 rounded-full">
+                    {event.tag}
+                  </span>
                 </div>
-              </motion.div>
+                <div className="p-6">
+                  <p className="font-inter text-xs font-medium text-deep-teal mb-2">
+                    {event.date}
+                  </p>
+                  <h3 className="font-sora font-semibold text-lg text-charcoal mb-2 group-hover:text-deep-teal transition-colors">
+                    {event.title}
+                  </h3>
+                  <p className="font-inter text-sm text-dark-gray leading-relaxed mb-4">
+                    {event.description}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 font-inter text-sm font-semibold text-deep-teal">
+                    Read more
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </span>
+                </div>
+              </motion.a>
             ))}
           </div>
+
+          <motion.div variants={fadeUp} className="text-center mt-10">
+            <a
+              href={`${BASE}/events`}
+              className="inline-flex items-center gap-2 font-inter font-semibold text-base text-deep-teal hover:text-bright-turquoise transition-colors duration-300"
+            >
+              View all events
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </motion.div>
         </SectionWrapper>
       </div>
     </section>
@@ -932,7 +938,7 @@ function CTA() {
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4">
             <a
-              href="https://givebutter.com"
+              href="https://givebutter.com/asianamericandream"
               target="_blank"
               rel="noopener noreferrer"
               className="font-inter font-semibold text-base bg-warm-gold text-navy px-10 py-4 rounded-full hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300"
@@ -977,13 +983,19 @@ function Footer() {
           <div>
             <h4 className="font-inter font-semibold text-sm text-white mb-4">Quick Links</h4>
             <ul className="space-y-2.5">
-              {["About", "Programs", "Team", "Events", "Donate"].map((l) => (
-                <li key={l}>
+              {[
+                { label: "About", href: "#about" },
+                { label: "Programs", href: "#programs" },
+                { label: "Team", href: "#team" },
+                { label: "Events", href: "#community" },
+                { label: "Donate", href: "#donate" },
+              ].map((l) => (
+                <li key={l.label}>
                   <a
-                    href={`#${l.toLowerCase()}`}
+                    href={l.href}
                     className="font-inter text-sm text-white/60 hover:text-bright-turquoise transition-colors duration-300"
                   >
-                    {l}
+                    {l.label}
                   </a>
                 </li>
               ))}
@@ -996,7 +1008,7 @@ function Footer() {
             <div className="flex gap-4">
               {/* LinkedIn */}
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/company/asianamericandream"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-bright-turquoise/20 hover:text-bright-turquoise hover:scale-110 transition-all duration-300"
@@ -1008,7 +1020,7 @@ function Footer() {
               </a>
               {/* Instagram */}
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/the_asianamericandream/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-bright-turquoise/20 hover:text-bright-turquoise hover:scale-110 transition-all duration-300"
@@ -1019,6 +1031,15 @@ function Footer() {
                 </svg>
               </a>
             </div>
+            <a
+              href="mailto:info@asianamericandream.org"
+              className="inline-flex items-center gap-2 font-inter text-sm text-white/60 hover:text-bright-turquoise transition-colors duration-300 mt-4"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+              info@asianamericandream.org
+            </a>
           </div>
         </div>
 
