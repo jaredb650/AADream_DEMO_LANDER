@@ -15,8 +15,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AAD Landing Page Variations",
-  description: "Asian American Dream - Website Redesign Concepts",
+  title: "Asian American Dream | Empowering AAPI Undergraduates",
+  description:
+    "Asian American Dream empowers first-generation, low-income AAPI undergraduates through mentorship, professional development, and career advancement.",
 };
 
 export default function RootLayout({
