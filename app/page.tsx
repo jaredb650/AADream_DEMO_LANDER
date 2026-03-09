@@ -247,6 +247,13 @@ function Hero() {
               >
                 Donate
               </a>
+              <button
+                type="button"
+                aria-disabled="true"
+                className="font-inter font-semibold text-base bg-white/10 backdrop-blur-sm text-white border border-white/25 px-8 py-3.5 rounded-full hover:bg-white/15 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+              >
+                Partner With Us
+              </button>
             </div>
           </motion.div>
 
@@ -361,26 +368,63 @@ function About() {
 /* ─── 5. Programs ─── */
 const programData = [
   {
-    title: "Mentorship",
+    title: "Kin Mentorship Program",
+    tagline:
+      "Empowering under-resourced AAPI undergraduates through career-centric, community-rooted mentorship.",
     description:
-      "One-on-one pairing with accomplished AAPI professionals who provide guidance, support, and inspiration throughout the academic journey.",
+      "AAD's signature program stewards a supportive community for 250 AAPI undergraduates and 250 AAPI professionals in New York.",
+    details:
+      "Through strategic partnerships with leading ERGs, the program illuminates roads to career success and dismantles the model minority myth by empowering community, belonging, and boundless confidence.",
+    highlights: [
+      "1:1 mentorship for AAPI undergraduates in New York",
+      "Community-rooted support with career-focused guidance",
+      "Built alongside leading employee resource groups and partners",
+    ],
+    partners:
+      "Amazon, American Express, Bank of America, Capri, Citi, Deloitte, Google, JPMorgan Chase, KKR, LinkedIn, McKinsey, Meta, Microsoft, Mizuho, National Grid, Skadden, Warburg Pincus, Wells Fargo, Zimmer Biomet",
+    applicationHref:
+      "https://forms.office.com/pages/responsepage.aspx?id=t5piMQcNikilfZtYTEzdYGqD7xouP-FPrxhl8w0vvghUMzBRQzlGUElMNEtDSUoyMFFQREszUlVVSi4u&route=shorturl",
+    applicationLabel: "2026 Application",
     image: `${BASE}/images/programs/program-1.jpg`,
   },
   {
-    title: "Professional Development",
+    title: "AAPI Creator Incubator",
+    tagline: "Empowering the next generation of AAPI creators.",
     description:
-      "Workshops, resume reviews, interview prep, and skill-building sessions designed specifically for AAPI undergraduates entering the workforce.",
+      "The AAPI Creator Incubator is a 5-month fellowship for NYC-based AAPI undergraduates pursuing a career in content creation.",
+    details:
+      "Fellows receive a catalytic $2,500 grant, 1:1 mentorship from an established creator, and monthly workshop dinners focused on brand strategy, viral production, and monetization.",
+    highlights: [
+      "5-month fellowship for NYC-based AAPI undergraduates",
+      "$2,500 catalytic grant",
+      "Creator mentorship plus monthly workshop dinners",
+    ],
+    applicationHref: "https://forms.office.com/r/Atqkget5qy",
+    applicationLabel: "2026 Application",
     image: `${BASE}/images/programs/program-2.jpg`,
   },
   {
-    title: "Career Advancement",
+    title: "Thriving AANHPI Leadership Accelerator",
+    tagline:
+      "Empowering AANHPI students to lead, thrive, and succeed on their own terms.",
     description:
-      "Networking events, industry connections, and pathways to internships and full-time roles that help students launch meaningful careers.",
+      "TALA is a career and leadership development program that supports economic mobility and holistic wellbeing for underrepresented Asian American, Native Hawaiian, and Pacific Islander college students in the NYC and SF Bay Areas.",
+    details:
+      "Designed for students ages 18 to 25 who are first-generation to college and/or low-income, the program offers a $1,000 stipend, exclusive swag, culturally relevant leadership training, mentorship, community care, networking opportunities, and social events.",
+    highlights: [
+      "Supports economic mobility and holistic wellbeing",
+      "$1,000 stipend, mentorship, and culturally relevant training",
+      "Built for first-generation and/or low-income AANHPI students ages 18 to 25",
+    ],
+    partners: "Facilitated in partnership with TAAF and APALI.",
     image: `${BASE}/images/programs/program-3.jpg`,
   },
 ];
 
 function Programs() {
+  const [activeProgram, setActiveProgram] = useState(0);
+  const selectedProgram = programData[activeProgram];
+
   return (
     <section id="programs" className="py-16 md:py-24 bg-off-white">
       <div className="max-w-[1200px] mx-auto px-5 md:px-8">
@@ -392,14 +436,24 @@ function Programs() {
             <h2 className="font-sora font-semibold text-[28px] md:text-[42px] leading-[1.2] tracking-[-0.01em] text-charcoal">
               Our Programs
             </h2>
+            <p className="font-inter text-base md:text-lg text-dark-gray max-w-3xl mx-auto mt-4 leading-relaxed">
+              Explore the three programs currently featured on AAD&apos;s live site. Each one
+              expands with more detail, and active application links are included where available.
+            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {programData.map((p) => (
-              <motion.div
+            {programData.map((p, index) => (
+              <motion.button
                 key={p.title}
+                type="button"
+                onClick={() => setActiveProgram(index)}
                 variants={fadeUp}
-                className="bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group"
+                className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group border ${
+                  activeProgram === index
+                    ? "border-deep-teal ring-2 ring-deep-teal/15"
+                    : "border-transparent"
+                }`}
               >
                 <div className="relative w-full aspect-[4/3] overflow-hidden">
                   <Image
@@ -411,14 +465,101 @@ function Programs() {
                   />
                 </div>
                 <div className="p-7">
+                  <p className="font-inter text-xs font-semibold tracking-[0.08em] uppercase text-deep-teal mb-3">
+                    Click to expand
+                  </p>
                   <h3 className="font-sora font-semibold text-xl md:text-2xl text-charcoal mb-3">
                     {p.title}
                   </h3>
-                  <p className="font-inter text-base text-dark-gray leading-relaxed">{p.description}</p>
+                  <p className="font-inter text-base text-dark-gray leading-relaxed mb-4">
+                    {p.tagline}
+                  </p>
+                  <span className="font-inter text-sm font-semibold text-deep-teal">
+                    {activeProgram === index ? "Expanded below" : "View details"}
+                  </span>
                 </div>
-              </motion.div>
+              </motion.button>
             ))}
           </div>
+
+          <motion.div
+            key={selectedProgram.title}
+            variants={fadeUp}
+            className="mt-8 rounded-[32px] bg-white p-6 md:p-8 shadow-[0_12px_40px_rgba(15,42,68,0.08)] border border-white/80"
+          >
+            <div className="grid lg:grid-cols-[1.1fr_1.3fr] gap-8 md:gap-10 items-start">
+              <div>
+                <div className="relative w-full aspect-[4/3] rounded-3xl overflow-hidden">
+                  <Image
+                    src={selectedProgram.image}
+                    alt={selectedProgram.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 45vw"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <span className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-deep-teal mb-3">
+                  Program Details
+                </span>
+                <h3 className="font-sora font-semibold text-[26px] md:text-[36px] leading-[1.15] text-charcoal mb-4">
+                  {selectedProgram.title}
+                </h3>
+                <p className="font-inter text-lg text-charcoal font-medium leading-relaxed mb-4">
+                  {selectedProgram.tagline}
+                </p>
+                <p className="font-inter text-base md:text-lg text-dark-gray leading-relaxed mb-4">
+                  {selectedProgram.description}
+                </p>
+                <p className="font-inter text-base md:text-lg text-dark-gray leading-relaxed mb-6">
+                  {selectedProgram.details}
+                </p>
+
+                <div className="grid sm:grid-cols-3 gap-3 mb-6">
+                  {selectedProgram.highlights.map((highlight) => (
+                    <div
+                      key={highlight}
+                      className="rounded-2xl bg-off-white px-4 py-4 font-inter text-sm text-dark-gray leading-relaxed border border-light-gray"
+                    >
+                      {highlight}
+                    </div>
+                  ))}
+                </div>
+
+                {selectedProgram.partners ? (
+                  <div className="rounded-2xl bg-navy/[0.03] border border-navy/10 px-5 py-4 mb-6">
+                    <p className="font-inter text-xs font-semibold tracking-[0.08em] uppercase text-deep-teal mb-2">
+                      Partners
+                    </p>
+                    <p className="font-inter text-sm md:text-base text-dark-gray leading-relaxed">
+                      {selectedProgram.partners}
+                    </p>
+                  </div>
+                ) : null}
+
+                <div className="flex flex-wrap gap-4">
+                  {selectedProgram.applicationHref ? (
+                    <a
+                      href={selectedProgram.applicationHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-inter font-semibold text-base bg-deep-teal text-white px-7 py-3.5 rounded-full hover:bg-navy hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+                    >
+                      {selectedProgram.applicationLabel}
+                    </a>
+                  ) : null}
+                  <a
+                    href="#donate"
+                    className="font-inter font-semibold text-base border-2 border-deep-teal text-deep-teal px-7 py-3.5 rounded-full hover:bg-deep-teal hover:text-white transition-all duration-300"
+                  >
+                    Support This Program
+                  </a>
+                </div>
+              </div>
+            </div>
+          </motion.div>
 
           {/* Program gallery strip */}
           <motion.div variants={fadeUp} className="mt-10 grid grid-cols-5 gap-3">
