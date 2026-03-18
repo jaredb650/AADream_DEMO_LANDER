@@ -9,7 +9,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-deep-teal: #1A6B7A;
-  --color-bright-turquoise: #4FD1C7;
+  --color-bright-turquoise: #3BA8D4;
   --color-navy: #0F2A44;
   --color-off-white: #F7FAFA;
   --color-light-gray: #E8EDED;
@@ -67,5 +67,5 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose-aad a:hover {
-  color: #4FD1C7;
+  color: #3BA8D4;
 }

@@ -1184,6 +1184,91 @@ function Footer() {
   );
 }
 
+/* ─── 12. GiveButter Contact Widget ─── */
+function GiveButterContact() {
+  const scriptLoadedRef = useRef(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
+
+  const ensureScript = () => {
+    if (scriptLoadedRef.current) return;
+    scriptLoadedRef.current = true;
+
+    const gb = window as unknown as Record<string, unknown>;
+    gb.Givebutter = gb.Givebutter || function (...args: unknown[]) {
+      ((gb.Givebutter as Record<string, unknown[]>).q =
+        (gb.Givebutter as Record<string, unknown[]>).q || []).push(args);
+    };
+    (gb.Givebutter as Record<string, unknown>).l = +new Date();
+    (gb.Givebutter as Function)("setOptions", {
+      accountId: "x9CtBILjd14unxn0",
+    });
+
+    const script = document.createElement("script");
+    script.src = "https://widgets.givebutter.com/latest.umd.cjs?acct=x9CtBILjd14unxn0&p=other";
+    script.async = true;
+    document.body.appendChild(script);
+  };
+
+  // First visit: load script quietly in background, popup appears when ready
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem("gb-popup-shown");
+    if (!hasVisited) {
+      const timer = setTimeout(() => {
+        ensureScript();
+        sessionStorage.setItem("gb-popup-shown", "true");
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleButtonClick = () => {
+    setButtonLoading(true);
+
+    if (!scriptLoadedRef.current) {
+      ensureScript();
+    } else {
+      // Re-mount widget to re-trigger popup
+      const mount = document.getElementById("gb-widget-mount");
+      if (mount) {
+        mount.innerHTML = "";
+        requestAnimationFrame(() => {
+          mount.innerHTML = '<givebutter-widget id="LYGJ8p"></givebutter-widget>';
+        });
+      }
+    }
+
+    // Spin for 4 seconds then reset
+    setTimeout(() => setButtonLoading(false), 4000);
+  };
+
+  return (
+    <>
+      {/* Widget mount */}
+      <div id="gb-widget-mount" dangerouslySetInnerHTML={{ __html: '<givebutter-widget id="LYGJ8p"></givebutter-widget>' }} />
+
+      {/* Floating contact button — spinner shows on button itself */}
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 3, type: "spring", stiffness: 200, damping: 20 }}
+        onClick={handleButtonClick}
+        disabled={buttonLoading}
+        className="fixed bottom-6 right-6 z-[60] w-14 h-14 rounded-full bg-deep-teal text-white shadow-[0_4px_20px_rgba(26,107,122,0.4)] hover:bg-navy hover:shadow-[0_6px_28px_rgba(15,42,68,0.5)] hover:scale-110 transition-all duration-300 flex items-center justify-center disabled:opacity-80 disabled:hover:scale-100"
+        aria-label="Contact us"
+      >
+        {buttonLoading ? (
+          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        ) : (
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          </svg>
+        )}
+      </motion.button>
+    </>
+  );
+}
+
 /* ─── Main Page ─── */
 export default function CommunityPage() {
   const [loading, setLoading] = useState(true);
@@ -1209,6 +1294,7 @@ export default function CommunityPage() {
         <PhotoBanner />
         <CTA />
         <Footer />
+        <GiveButterContact />
       </motion.div>
     </>
   );
