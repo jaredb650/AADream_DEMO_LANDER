@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Image from "next/image";
 
@@ -297,7 +297,37 @@ function Hero() {
 }
 
 /* ─── 4. About / Mission ─── */
+const whyItMattersSlides = [
+  {
+    stat: "11x",
+    label: "Income Disparity",
+    description:
+      "The top 10% of AAPI earners make 11 times the bottom 10% \u2014 the largest income disparity of any racial group in the United States. We exist to change this.",
+  },
+  {
+    stat: "72%",
+    label: "Overlooked in Leadership",
+    description:
+      "Despite being the fastest-growing racial group in the U.S., AAPIs hold only 2% of Fortune 500 CEO positions. Our programs build the pipeline for the next generation of AAPI leaders.",
+  },
+  {
+    stat: "1 in 4",
+    label: "First-Generation Challenges",
+    description:
+      "Nearly 1 in 4 AAPI students are first-generation college students navigating higher education without family guidance. AAD provides the mentorship and community they need to thrive.",
+  },
+];
+
 function About() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % whyItMattersSlides.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section id="about" className="py-16 md:py-24 bg-white">
       <div className="max-w-[1200px] mx-auto px-5 md:px-8">
@@ -330,7 +360,7 @@ function About() {
               </motion.p>
             </div>
 
-            {/* Right - Stat callout with event photo */}
+            {/* Right - Stat callout carousel */}
             <motion.div variants={fadeUp}>
               <div className="bg-off-white rounded-3xl p-8 md:p-10 relative overflow-hidden">
                 <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-6">
@@ -345,20 +375,42 @@ function About() {
                 <span className="font-inter font-semibold text-xs tracking-[0.08em] uppercase text-deep-teal mb-4 block">
                   Why It Matters
                 </span>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="font-sora font-bold text-6xl md:text-7xl text-deep-teal">11x</span>
+                <div className="relative min-h-[200px]">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeSlide}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <div className="flex items-baseline gap-2 mb-4">
+                        <span className="font-sora font-bold text-6xl md:text-7xl text-deep-teal">
+                          {whyItMattersSlides[activeSlide].stat}
+                        </span>
+                      </div>
+                      <p className="font-inter text-lg md:text-xl text-charcoal font-medium mb-3">
+                        {whyItMattersSlides[activeSlide].label}
+                      </p>
+                      <p className="font-inter text-base text-dark-gray leading-relaxed">
+                        {whyItMattersSlides[activeSlide].description}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
-                <p className="font-inter text-lg md:text-xl text-charcoal font-medium mb-3">
-                  Income Disparity
-                </p>
-                <p className="font-inter text-base text-dark-gray leading-relaxed">
-                  The top 10% of AAPI earners make 11 times the bottom 10% - the largest income
-                  disparity of any racial group in the United States. We exist to change this.
-                </p>
                 <div className="mt-6 flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-bright-turquoise" />
-                  <div className="w-2 h-2 rounded-full bg-deep-teal" />
-                  <div className="w-2 h-2 rounded-full bg-warm-gold" />
+                  {whyItMattersSlides.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveSlide(i)}
+                      aria-label={`Go to slide ${i + 1}`}
+                      className={`rounded-full transition-all duration-300 ${
+                        i === activeSlide
+                          ? "w-3 h-3 bg-bright-turquoise"
+                          : "w-2 h-2 bg-deep-teal/40 hover:bg-deep-teal/70"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
             </motion.div>
@@ -386,9 +438,6 @@ const programData = [
     ],
     partners:
       "Amazon, American Express, Bank of America, Capri, Citi, Deloitte, Google, JPMorgan Chase, KKR, LinkedIn, McKinsey, Meta, Microsoft, Mizuho, National Grid, Skadden, Warburg Pincus, Wells Fargo, Zimmer Biomet",
-    applicationHref:
-      "https://forms.office.com/pages/responsepage.aspx?id=t5piMQcNikilfZtYTEzdYGqD7xouP-FPrxhl8w0vvghUMzBRQzlGUElMNEtDSUoyMFFQREszUlVVSi4u&route=shorturl",
-    applicationLabel: "2026 Application",
     image: `${BASE}/images/programs/program-1.jpg`,
   },
   {
@@ -403,8 +452,6 @@ const programData = [
       "$2,500 catalytic grant",
       "Creator mentorship plus monthly workshop dinners",
     ],
-    applicationHref: "https://forms.office.com/r/Atqkget5qy",
-    applicationLabel: "2026 Application",
     image: `${BASE}/images/programs/program-2.jpg`,
   },
   {
@@ -542,16 +589,6 @@ function Programs() {
                           ) : null}
 
                           <div className="flex flex-wrap gap-3">
-                            {p.applicationHref ? (
-                              <a
-                                href={p.applicationHref}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-inter font-semibold text-sm bg-deep-teal text-white px-6 py-3 rounded-full hover:bg-navy hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
-                              >
-                                {p.applicationLabel}
-                              </a>
-                            ) : null}
                             <a
                               href="#donate"
                               className="font-inter font-semibold text-sm border-2 border-deep-teal text-deep-teal px-6 py-3 rounded-full hover:bg-deep-teal hover:text-white transition-all duration-300"
@@ -662,32 +699,52 @@ function Impact() {
   );
 }
 
-/* ─── 7. Team - Board & Advisory with Real Photos ─── */
+/* ─── 7. Team - Board, Advisory & AADream Team with Real Photos ─── */
 const boardMembers = [
-  { name: "Jack Tran", role: "Chair", title: "Strategy & Product Management, American Express", image: `${BASE}/images/team/jack-tran.jpg` },
-  { name: "James Cheng", role: "Vice-Chair", title: "Global Senior Director of DEI, Zimmer Biomet", image: `${BASE}/images/team/james-cheng.jpg` },
-  { name: "Jason Huang", role: "Treasurer", title: "Financial Advisor, Oppenheimer Co.", image: `${BASE}/images/team/jason-huang.jpg` },
-  { name: "Andrew Pandolfo", role: "Secretary", title: "", image: `${BASE}/images/team/andrew-pandolfo.jpg` },
-  { name: "Kevin Ha", role: "Founder & Executive Director", title: "2024-2025 Obama USA Leader", image: `${BASE}/images/team/kevin-ha.jpg` },
-  { name: "Carteneil Cheung", role: "Director", title: "Associate General Counsel, McKinsey & Company", image: `${BASE}/images/team/carteneil-cheung.jpg` },
-  { name: "Jocelyn Cruz-Alfalla", role: "Director", title: "Dir. of Community & Schools Tennis, USTA Eastern", image: `${BASE}/images/team/jocelyn-cruz-alfalla.png` },
-  { name: "Roger Kim", role: "Director", title: "Managing Director, Societe Generale", image: `${BASE}/images/team/roger-kim.jpg` },
-  { name: "James Liao", role: "Director", title: "President, Salem Consultants Inc.", image: `${BASE}/images/team/james-liao.jpg` },
-  { name: "Kevin Vuong", role: "Director", title: "SVP Global Store & Workplace Experience, Capri Holdings", image: `${BASE}/images/team/kevin-vuong.jpg` },
-  { name: "Yuko Yates", role: "Director", title: "SVP Business Support Executive, Bank of America Legal", image: `${BASE}/images/team/yuko-yates.jpg` },
-  { name: "Jennifer Young", role: "Director", title: "Senior Principal, Google Cloud", image: `${BASE}/images/team/jennifer-young.jpg` },
+  { name: "Jack Tran", role: "Chair", title: "Strategy & Product Management, American Express", bio: "Fintech professional in Strategy and Product Management at American Express. Previously at CVS Health and consulting firms EY and PwC. Board member of ACE NextGen New York.", image: `${BASE}/images/team/jack-tran.jpg` },
+  { name: "James Cheng", role: "Vice-Chair", title: "Global Senior Director of DEI, Zimmer Biomet", bio: "Global Senior Director and Head of Diversity, Equity, and Inclusion at Zimmer Biomet. Previously held leadership roles in inclusion and diversity at Gilead Sciences and Cargill.", image: `${BASE}/images/team/james-cheng.jpg` },
+  { name: "Jason Huang", role: "Treasurer", title: "Financial Advisor, Oppenheimer Co.", bio: "Financial Advisor at Oppenheimer Co. Inc. Certified Financial Planner since 2024. Eagle Scout Award recipient with 400+ hours of volunteer service.", image: `${BASE}/images/team/jason-huang.jpg` },
+  { name: "Andrew Pandolfo", role: "Secretary", title: "", bio: "", image: `${BASE}/images/team/andrew-pandolfo.jpg` },
+  { name: "Kevin Ha", role: "Founder & Executive Director", title: "2024-2025 Obama USA Leader", bio: "Founder and Executive Director of Asian American Dream. Selected as 2024-2025 Obama USA Leader and 2024 Fellow by The EGF Accelerator. Previously worked in Markets Group at Federal Reserve Bank of New York.", image: `${BASE}/images/team/kevin-ha.jpg` },
+  { name: "Carteneil Cheung", role: "Director", title: "Associate General Counsel, McKinsey & Company", bio: "Associate General Counsel at McKinsey & Company. Corporate attorney with experience at Paul, Weiss and Sidley Austin. Specializes in mergers, acquisitions, and strategic investments.", image: `${BASE}/images/team/carteneil-cheung.jpg` },
+  { name: "Jocelyn Cruz-Alfalla", role: "Director", title: "Dir. of Community & Schools Tennis, USTA Eastern", bio: "Director of Community and Schools Tennis at USTA Eastern managing grassroots grant programs. Previously Assistant Athletic Director at Marymount School. 18+ years in organizational development.", image: `${BASE}/images/team/jocelyn-cruz-alfalla.png` },
+  { name: "Roger Kim", role: "Director", title: "Managing Director, Societe Generale", bio: "Managing Director and head of Structuring and Solutions for fixed income division at Societe Generale. Prior roles at Deutsche Bank Korea and Morgan Stanley Korea. Stanford University graduate.", image: `${BASE}/images/team/roger-kim.jpg` },
+  { name: "James Liao", role: "Director", title: "President, Salem Consultants Inc.", bio: "President of Salem Consultants Inc. Teacher at Chang Gung University in Taiwan. Director and former Board President of Flushing Town Hall.", image: `${BASE}/images/team/james-liao.jpg` },
+  { name: "Kevin Vuong", role: "Director", title: "SVP Global Store & Workplace Experience, Capri Holdings", bio: "Licensed architect and SVP of Global Store & Workplace Experience for Capri Holdings (Versace, Jimmy Choo, Michael Kors). Architecture degrees from UC Berkeley.", image: `${BASE}/images/team/kevin-vuong.jpg` },
+  { name: "Yuko Yates", role: "Director", title: "SVP Business Support Executive, Bank of America Legal", bio: "Senior Vice President at Bank of America Legal Department leading business strategy initiatives. Co-chair of Bank of America Asian Leadership Network New York.", image: `${BASE}/images/team/yuko-yates.jpg` },
+  { name: "Jennifer Young", role: "Director", title: "Senior Principal, Google Cloud", bio: "Senior Principal at Google Cloud on Global Strategic Missions & Partnerships. Previously led M&A at Soci\u00e9t\u00e9 BIC and worked in investment banking at Evercore.", image: `${BASE}/images/team/jennifer-young.jpg` },
 ];
 
 const advisoryMembers = [
-  { name: "Alex Chester-Iwata", title: "Founder, Mixed Asian Media", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
-  { name: "Timothy Fong", title: "Senior Systems Specialist, Warburg Pincus", image: `${BASE}/images/team/timothy-fong.jpg` },
-  { name: "Esther Kim", title: "Program Manager, Microsoft Azure", image: `${BASE}/images/team/esther-kim.jpg` },
-  { name: "Jerry Lee", title: "Co-Founder, Wonsulting", image: `${BASE}/images/team/jerry-lee.jpg` },
-  { name: "Dawn Lucovich", title: "Founding Faculty, University of Nagano", image: `${BASE}/images/team/dawn-lucovich.jpg` },
-  { name: "Rhea Mahajan", title: "CPA, SASB FSA Level II", image: `${BASE}/images/team/rhea-mahajan.jpg` },
+  { name: "Alex Chester-Iwata", title: "Founder, Mixed Asian Media", bio: "Award-winning performer, writer, and cultural advocate with 35+ years in entertainment. Founder of Mixed Asian Media and Mixed Asian Day\u2122.", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
+  { name: "Timothy Fong", title: "Senior Systems Specialist, Warburg Pincus", bio: "Senior Systems Specialist at Warburg Pincus with 9+ years implementing enterprise systems. Focused on mentorship and creating pathways for early-career professionals.", image: `${BASE}/images/team/timothy-fong.jpg` },
+  { name: "Esther Kim", title: "Program Manager, Microsoft Azure", bio: "Program Manager at Microsoft in Azure Customer Reliability Engineering. Chair of Microsoft Asians of New York.", image: `${BASE}/images/team/esther-kim.jpg` },
+  { name: "Jerry Lee", title: "Co-Founder, Wonsulting", bio: "Co-Founder of Wonsulting and ex-Senior Strategy & Operations Manager at Google. 3M+ followers across social platforms.", image: `${BASE}/images/team/jerry-lee.jpg` },
+  { name: "Dawn Lucovich", title: "Founding Faculty, University of Nagano", bio: "Founding faculty member at University of Nagano. Previously taught at Columbia University and NYU. Specializes in change management and organizational leadership.", image: `${BASE}/images/team/dawn-lucovich.jpg` },
+  { name: "Rhea Mahajan", title: "CPA, SASB FSA Level II", bio: "CPA and SASB FSA Level II certified professional with expertise in development, social impact, and consulting. Drove meaningful change as Development Account Manager at APIA Scholars and Social Innovation Officer at Smart City Expo USA. At APCO Impact, advised foundations and corporations on financial inclusion, ESG, philanthropy, and DEI initiatives. Also a skilled media host with over 4 million views across South Asian platforms.", image: `${BASE}/images/team/rhea-mahajan.jpg` },
+  { name: "Alicia Underwood", title: "Founder, TwentyThree LLC", bio: "Founder of TwentyThree, LLC, a digital communications and influencer marketing agency. 15 years of experience in social media strategy and brand storytelling. Leads strategy, creative, and execution across social media, paid media, and influencer marketing. Also building The Social Box, a software platform for influencer marketing workflows.", image: `${BASE}/images/team/alicia-underwood.jpg` },
+  { name: "Christopher Won", title: "Educator & Community Advocate", bio: "Educator, advocate, and designer with over fifteen years of experience in community development, creative learning, and organizational management.", image: `${BASE}/images/team/christopher-won.jpeg` },
+  { name: "Douglas York", title: "Chair, Advisory Council", bio: "Retiree with over 38 years of utility industry experience at National Grid. Led teams in IT, Finance, Operations Performance, and Sales. Former Chairperson for the Asian Leadership Association ERG. Currently on the Board of Directors for NAAAP New York and planning committee for the NAAAP STEP Mentorship program. Former AAD Board member for 3 years, now Chairperson for the Advisory Council.", image: `${BASE}/images/team/douglas-york.jpg` },
+];
+
+const aadreamTeam = [
+  { name: "Mohina Abdullaeva", role: "Director of Partnerships", bio: "Junior at Baruch College, CUNY, pursuing a degree in Computer Information Systems with a Minor in Economics. Background in the business industry through startup involvement and volunteering at cultural non-profits. Originally from Central Asia.", image: `${BASE}/images/team/mohina-abdullaeva.jpg` },
+  { name: "Jaclyn Eng", role: "Program Coordinator", bio: "Native New Yorker working in management consulting. Bachelor's degree in Psychology and master's in Data Analytics and Applied Social Research from Queens College, CUNY. Previous experience supporting dual-enrollment programs and college access initiatives.", image: `${BASE}/images/team/jaclyn-eng.jpg` },
+  { name: "Kevin Ha", role: "Executive Director", bio: "Founder and Executive Director of Asian American Dream. Selected as 2024-2025 Obama USA Leader and 2024 Fellow by The EGF Accelerator. Previously worked in Markets Group at Federal Reserve Bank of New York.", image: `${BASE}/images/team/kevin-ha.jpg` },
+  { name: "Josh Minsup Kim", role: "Program Coordinator", bio: "In GTM & Product at MindStudio, a No/Lo-Code AI Agent platform. Previously Data Insights & Analytics Consultant at Kantar. A proud Third Culture Kid with roots in both Seoul and New York, passionate about empowering Asian American professionals.", image: `${BASE}/images/team/josh-minsup-kim.png` },
+  { name: "Perry Leong", role: "Co-Director of Community", bio: "Senior Product Marketing Manager at Microsoft working on Azure cloud infrastructure. Combination of software engineering and technical marketing experience. Born and raised in the SF Bay Area, living in Manhattan since 2023.", image: `${BASE}/images/team/perry-leong.jpg` },
+  { name: "Ed Shen", role: "Program Coordinator", bio: "Portfolio manager at BlackRock, managing multi-asset portfolios. Also moonlights as a DJ and events organizer, coordinating programming for plur.nyc and Subtle Asian Mates.", image: `${BASE}/images/team/ed-shen.jpg` },
+  { name: "Shirley Tan", role: "Program Coordinator", bio: "Born in China, grew up in North Carolina. Business Analyst at McKinsey & Company spanning across industries with a focus on Consumer & Retail. Led connectivity across New York and North America for Asians at McKinsey.", image: `${BASE}/images/team/shirley-tan.jpg` },
+  { name: "Sarah Yoo", role: "Co-Director of Community", bio: "Strategy & Business Operations Associate at LinkedIn. Previously part of the Strategy Practice at EY-Parthenon. With roots in both Boston and Seoul, passionate about building community for Asian American professionals in New York.", image: `${BASE}/images/team/sarah-yoo.jpg` },
 ];
 
 function Team() {
+  const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
+
+  const togglePerson = (name: string) => {
+    setSelectedPerson(selectedPerson === name ? null : name);
+  };
+
   return (
     <section id="team" className="py-16 md:py-24 bg-white">
       <div className="max-w-[1200px] mx-auto px-5 md:px-8">
@@ -711,20 +768,43 @@ function Team() {
                 <motion.div
                   key={m.name}
                   variants={fadeUp}
-                  className="flex flex-col items-center group"
+                  className="flex flex-col items-center"
                 >
-                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-3 ring-bright-turquoise/20 group-hover:ring-bright-turquoise/50 relative">
-                    <Image
-                      src={m.image}
-                      alt={m.name}
-                      fill
-                      className="object-cover"
-                      sizes="112px"
-                    />
-                  </div>
-                  <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
-                  <p className="font-inter text-xs text-deep-teal font-medium">{m.role}</p>
-                  {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
+                  <button
+                    type="button"
+                    onClick={() => m.bio ? togglePerson(m.name) : undefined}
+                    className={`flex flex-col items-center group ${m.bio ? "cursor-pointer" : "cursor-default"}`}
+                  >
+                    <div className={`w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-3 ring-bright-turquoise/20 group-hover:ring-bright-turquoise/50 relative ${
+                      selectedPerson === m.name ? "ring-bright-turquoise/70" : ""
+                    }`}>
+                      <Image
+                        src={m.image}
+                        alt={m.name}
+                        fill
+                        className="object-cover"
+                        sizes="112px"
+                      />
+                    </div>
+                    <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
+                    <p className="font-inter text-xs text-deep-teal font-medium">{m.role}</p>
+                    {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
+                  </button>
+                  <AnimatePresence>
+                    {selectedPerson === m.name && m.bio && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
+                          {m.bio}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
             </div>
@@ -735,25 +815,99 @@ function Team() {
             <h3 className="font-sora font-semibold text-xl text-charcoal text-center mb-8">
               Advisory Board
             </h3>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+            <div className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16">
               {advisoryMembers.map((m) => (
                 <motion.div
                   key={m.name}
                   variants={fadeUp}
-                  className="flex flex-col items-center group"
+                  className="flex flex-col items-center"
                 >
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-2 ring-warm-gold/20 group-hover:ring-warm-gold/50 relative">
-                    <Image
-                      src={m.image}
-                      alt={m.name}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
-                    />
-                  </div>
-                  <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
-                  <p className="font-inter text-xs text-dark-gray">Advisory</p>
-                  {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
+                  <button
+                    type="button"
+                    onClick={() => m.bio ? togglePerson(`advisory-${m.name}`) : undefined}
+                    className={`flex flex-col items-center group ${m.bio ? "cursor-pointer" : "cursor-default"}`}
+                  >
+                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-2 ring-warm-gold/20 group-hover:ring-warm-gold/50 relative ${
+                      selectedPerson === `advisory-${m.name}` ? "ring-warm-gold/70" : ""
+                    }`}>
+                      <Image
+                        src={m.image}
+                        alt={m.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    </div>
+                    <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
+                    <p className="font-inter text-xs text-dark-gray">Advisory</p>
+                    {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
+                  </button>
+                  <AnimatePresence>
+                    {selectedPerson === `advisory-${m.name}` && m.bio && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
+                          {m.bio}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* AADream Team */}
+          <motion.div variants={fadeUp}>
+            <h3 className="font-sora font-semibold text-xl text-charcoal text-center mb-8">
+              AADream Team
+            </h3>
+            <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+              {aadreamTeam.map((m) => (
+                <motion.div
+                  key={m.name}
+                  variants={fadeUp}
+                  className="flex flex-col items-center"
+                >
+                  <button
+                    type="button"
+                    onClick={() => m.bio ? togglePerson(`team-${m.name}`) : undefined}
+                    className={`flex flex-col items-center group ${m.bio ? "cursor-pointer" : "cursor-default"}`}
+                  >
+                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-2 ring-bright-turquoise/20 group-hover:ring-bright-turquoise/50 relative ${
+                      selectedPerson === `team-${m.name}` ? "ring-bright-turquoise/70" : ""
+                    }`}>
+                      <Image
+                        src={m.image}
+                        alt={m.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    </div>
+                    <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
+                    <p className="font-inter text-xs text-deep-teal font-medium">{m.role}</p>
+                  </button>
+                  <AnimatePresence>
+                    {selectedPerson === `team-${m.name}` && m.bio && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
+                          {m.bio}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
             </div>
@@ -1187,9 +1341,8 @@ function Footer() {
 /* ─── 12. GiveButter Contact Widget ─── */
 function GiveButterContact() {
   const scriptLoadedRef = useRef(false);
-  const [buttonLoading, setButtonLoading] = useState(false);
 
-  const ensureScript = () => {
+  const ensureScript = useCallback(() => {
     if (scriptLoadedRef.current) return;
     scriptLoadedRef.current = true;
 
@@ -1207,9 +1360,8 @@ function GiveButterContact() {
     script.src = "https://widgets.givebutter.com/latest.umd.cjs?acct=x9CtBILjd14unxn0&p=other";
     script.async = true;
     document.body.appendChild(script);
-  };
+  }, []);
 
-  // First visit: load script quietly in background, popup appears when ready
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("gb-popup-shown");
     if (!hasVisited) {
@@ -1219,53 +1371,10 @@ function GiveButterContact() {
       }, 2500);
       return () => clearTimeout(timer);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleButtonClick = () => {
-    setButtonLoading(true);
-
-    if (!scriptLoadedRef.current) {
-      ensureScript();
-    } else {
-      // Re-mount widget to re-trigger popup
-      const mount = document.getElementById("gb-widget-mount");
-      if (mount) {
-        mount.innerHTML = "";
-        requestAnimationFrame(() => {
-          mount.innerHTML = '<givebutter-widget id="LYGJ8p"></givebutter-widget>';
-        });
-      }
-    }
-
-    // Spin for 4 seconds then reset
-    setTimeout(() => setButtonLoading(false), 4000);
-  };
+  }, [ensureScript]);
 
   return (
-    <>
-      {/* Widget mount */}
-      <div id="gb-widget-mount" dangerouslySetInnerHTML={{ __html: '<givebutter-widget id="LYGJ8p"></givebutter-widget>' }} />
-
-      {/* Floating contact button — spinner shows on button itself */}
-      <motion.button
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 3, type: "spring", stiffness: 200, damping: 20 }}
-        onClick={handleButtonClick}
-        disabled={buttonLoading}
-        className="fixed bottom-6 right-6 z-[60] w-14 h-14 rounded-full bg-deep-teal text-white shadow-[0_4px_20px_rgba(26,107,122,0.4)] hover:bg-navy hover:shadow-[0_6px_28px_rgba(15,42,68,0.5)] hover:scale-110 transition-all duration-300 flex items-center justify-center disabled:opacity-80 disabled:hover:scale-100"
-        aria-label="Contact us"
-      >
-        {buttonLoading ? (
-          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-        ) : (
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-          </svg>
-        )}
-      </motion.button>
-    </>
+    <div id="gb-widget-mount" dangerouslySetInnerHTML={{ __html: '<givebutter-widget id="LYGJ8p"></givebutter-widget>' }} />
   );
 }
 
