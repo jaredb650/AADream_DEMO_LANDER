@@ -660,13 +660,210 @@ const stats = [
   { value: 95, suffix: "%", label: "Recommend to Peers" },
 ];
 
+function ParticleCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouse = useRef({ x: -1000, y: -1000 });
+  const particles = useRef<{ x: number; y: number; baseX: number; baseY: number; vx: number; vy: number; r: number; alpha: number; drift: number; phase: number; speed: number }[]>([]);
+  const raf = useRef<number>(0);
+  const trail = useRef<{ x: number; y: number; age: number }[]>([]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      if (!rect) return;
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+    resize();
+
+    const w = () => canvas.width / window.devicePixelRatio;
+    const h = () => canvas.height / window.devicePixelRatio;
+
+    // Initialize particles
+    const count = 120;
+    particles.current = Array.from({ length: count }, () => {
+      const x = Math.random() * w();
+      const y = Math.random() * h();
+      return {
+        x, y, baseX: x, baseY: y,
+        vx: 0, vy: 0,
+        r: 1.2 + Math.random() * 2,
+        alpha: 0.08 + Math.random() * 0.2,
+        drift: Math.random() * Math.PI * 2,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.2 + Math.random() * 0.5,
+      };
+    });
+
+    let time = 0;
+
+    const draw = () => {
+      time += 0.008;
+      const W = w();
+      const H = h();
+      ctx.clearRect(0, 0, W, H);
+
+      // Ambient glow blobs
+      const g1 = ctx.createRadialGradient(W * 0.3, H * 0.2, 0, W * 0.3, H * 0.2, W * 0.35);
+      g1.addColorStop(0, "rgba(26,107,122,0.06)");
+      g1.addColorStop(1, "transparent");
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, W, H);
+
+      const g2 = ctx.createRadialGradient(W * 0.75, H * 0.7, 0, W * 0.75, H * 0.7, W * 0.3);
+      g2.addColorStop(0, "rgba(59,168,212,0.04)");
+      g2.addColorStop(1, "transparent");
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, W, H);
+
+      // Update trail
+      trail.current = trail.current
+        .map((t) => ({ ...t, age: t.age + 1 }))
+        .filter((t) => t.age < 40);
+
+      // Draw trail (fading ripple marks)
+      for (const t of trail.current) {
+        const fade = 1 - t.age / 40;
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 2 + (1 - fade) * 20, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(59,168,212,${fade * 0.06})`;
+        ctx.fill();
+      }
+
+      // Cursor glow
+      const mx = mouse.current.x;
+      const my = mouse.current.y;
+      if (mx > -500) {
+        const cg = ctx.createRadialGradient(mx, my, 0, mx, my, 140);
+        cg.addColorStop(0, "rgba(59,168,212,0.15)");
+        cg.addColorStop(0.4, "rgba(26,107,122,0.06)");
+        cg.addColorStop(1, "transparent");
+        ctx.fillStyle = cg;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      // Particles
+      for (const p of particles.current) {
+        // Gentle floating drift
+        p.drift += p.speed * 0.01;
+        const floatX = Math.sin(p.drift + p.phase) * 12;
+        const floatY = Math.cos(p.drift * 0.7 + p.phase) * 8 + time * p.speed * 15;
+
+        // Falling: wrap around when past bottom
+        let targetY = p.baseY + floatY;
+        if (targetY > H + 20) {
+          p.baseY -= H + 40;
+          targetY = p.baseY + floatY;
+        }
+
+        const targetX = p.baseX + floatX;
+
+        // Cursor repulsion + attraction
+        if (mx > -500) {
+          const dx = targetX - mx;
+          const dy = targetY - my;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const radius = 120;
+          if (dist < radius) {
+            const force = (1 - dist / radius) * 3;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Apply velocity with damping
+        p.x += (targetX - p.x) * 0.04 + p.vx;
+        p.y += (targetY - p.y) * 0.04 + p.vy;
+        p.vx *= 0.92;
+        p.vy *= 0.92;
+
+        // Distance to cursor for glow
+        const dxm = p.x - mx;
+        const dym = p.y - my;
+        const distM = Math.sqrt(dxm * dxm + dym * dym);
+        const glow = mx > -500 ? Math.max(0, 1 - distM / 150) : 0;
+
+        const r = p.r + glow * 3;
+        const alpha = p.alpha + glow * 0.6;
+
+        // Draw particle
+        const pg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2.5);
+        pg.addColorStop(0, `rgba(59,168,212,${alpha})`);
+        pg.addColorStop(0.5, `rgba(26,107,122,${alpha * 0.4})`);
+        pg.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = pg;
+        ctx.fill();
+
+        // Bright core
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r * 0.6, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,230,245,${alpha * 0.7})`;
+        ctx.fill();
+
+        // Connection lines between nearby particles
+        if (glow > 0.1) {
+          for (const p2 of particles.current) {
+            if (p2 === p) continue;
+            const dd = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
+            if (dd < 80) {
+              const lineAlpha = (1 - dd / 80) * glow * 0.15;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(59,168,212,${lineAlpha})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      raf.current = requestAnimationFrame(draw);
+    };
+
+    raf.current = requestAnimationFrame(draw);
+    window.addEventListener("resize", resize);
+
+    return () => {
+      cancelAnimationFrame(raf.current);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const rect = canvasRef.current?.parentElement?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    mouse.current = { x, y };
+    trail.current.push({ x, y, age: 0 });
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => { mouse.current = { x: -1000, y: -1000 }; }}
+      className="absolute inset-0 w-full h-full"
+      style={{ zIndex: 1 }}
+    />
+  );
+}
+
 function Impact() {
   return (
     <section className="py-16 md:py-24 bg-navy relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full">
-        <div className="absolute top-10 left-1/4 w-64 h-64 rounded-full bg-bright-turquoise/5 blur-3xl" />
-        <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-deep-teal/10 blur-3xl" />
-      </div>
+      <ParticleCanvas />
 
       <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-10">
         <SectionWrapper>
