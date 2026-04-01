@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } from "framer-motion";
 import Image from "next/image";
 
 const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
@@ -15,6 +15,59 @@ const fadeUp = {
 const staggerContainer = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12 } },
+};
+
+/* ─── Enhanced Animation Variants ─── */
+const blurFadeUp = {
+  hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.92 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+const slideFromLeft = {
+  hidden: { opacity: 0, x: -40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+const slideFromRight = {
+  hidden: { opacity: 0, x: 40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+const cardReveal = {
+  hidden: { opacity: 0, y: 40, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+const widerStagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.15 } },
 };
 
 function SectionWrapper({
@@ -35,6 +88,78 @@ function SectionWrapper({
       className={className}
     >
       {children}
+    </motion.div>
+  );
+}
+
+/* ─── Floating Decorative Orb ─── */
+function FloatingOrb({
+  className,
+  delay = 0,
+  duration = 6,
+  size = 200,
+}: {
+  className?: string;
+  delay?: number;
+  duration?: number;
+  size?: number;
+}) {
+  return (
+    <motion.div
+      className={`absolute rounded-full pointer-events-none ${className}`}
+      style={{ width: size, height: size }}
+      animate={{
+        y: [0, -20, 0, 15, 0],
+        x: [0, 10, 0, -8, 0],
+        scale: [1, 1.05, 1, 0.97, 1],
+      }}
+      transition={{
+        duration,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay,
+      }}
+    />
+  );
+}
+
+/* ─── Section Heading with blur-to-sharp reveal ─── */
+function SectionHeading({
+  tag,
+  title,
+  description,
+  light = false,
+}: {
+  tag: string;
+  title: string;
+  description?: string;
+  light?: boolean;
+}) {
+  return (
+    <motion.div variants={blurFadeUp} className="text-center mb-14">
+      <span
+        className={`inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase mb-3 ${
+          light ? "text-bright-turquoise" : "text-deep-teal"
+        }`}
+      >
+        {tag}
+      </span>
+      <h2
+        className={`font-sora font-semibold text-[28px] md:text-[42px] leading-[1.2] tracking-[-0.01em] ${
+          light ? "text-white" : "text-charcoal"
+        }`}
+      >
+        {title}
+      </h2>
+      {description && (
+        <p
+          className={`font-inter text-base md:text-lg max-w-3xl mx-auto mt-4 leading-relaxed ${
+            light ? "text-white/70" : "text-dark-gray"
+          }`}
+        >
+          {description}
+        </p>
+      )}
     </motion.div>
   );
 }
@@ -80,6 +205,10 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { scrollY } = useScroll();
+  const navBg = useTransform(scrollY, [0, 80], [0, 0.92]);
+  const navBlur = useTransform(scrollY, [0, 80], [0, 20]);
+  const navShadow = useTransform(scrollY, [0, 80], [0, 0.06]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -95,12 +224,18 @@ function Navbar() {
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.06)]"
-          : "bg-transparent"
-      }`}
+    <motion.nav
+      className="fixed top-0 left-0 right-0 z-50"
+      style={{
+        backgroundColor: scrolled
+          ? `rgba(255,255,255,${navBg.get()})`
+          : "transparent",
+        backdropFilter: scrolled ? `blur(${navBlur.get()}px)` : "none",
+        boxShadow: scrolled
+          ? `0 1px 12px rgba(0,0,0,${navShadow.get()})`
+          : "none",
+        transition: "background-color 0.3s, backdrop-filter 0.3s, box-shadow 0.3s",
+      }}
     >
       <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[72px] px-5 md:px-8">
         {/* Logo */}
@@ -117,8 +252,8 @@ function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
-          {links.map((l) => (
-            <a
+          {links.map((l, i) => (
+            <motion.a
               key={l.href}
               href={l.href}
               className={`font-inter font-medium text-[15px] transition-colors relative group ${
@@ -126,19 +261,27 @@ function Navbar() {
                   ? "text-dark-gray hover:text-deep-teal"
                   : "text-white/90 hover:text-white"
               }`}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
               {l.label}
               <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-bright-turquoise transition-all duration-300 group-hover:w-full rounded-full" />
-            </a>
+            </motion.a>
           ))}
-          <a
+          <motion.a
             href="https://givebutter.com/asianamericandream"
             target="_blank"
             rel="noopener noreferrer"
             className="font-inter font-semibold text-sm bg-warm-gold text-navy px-6 py-2.5 rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.35, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
           >
             Donate
-          </a>
+          </motion.a>
         </div>
 
         {/* Mobile hamburger */}
@@ -198,16 +341,26 @@ function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   );
 }
 
 /* ─── 3. Hero ─── */
 function Hero() {
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.6, 0.9]);
+
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Full-bleed hero group photo */}
-      <div className="absolute inset-0">
+    <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Full-bleed hero group photo with parallax zoom */}
+      <motion.div className="absolute inset-0" style={{ scale: imageScale }}>
         <Image
           src={`${BASE}/images/hero-group.jpg`}
           alt="Asian American Dream community group photo"
@@ -216,63 +369,119 @@ function Hero() {
           priority
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy/85 via-navy/60 to-navy/30" />
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-navy/85 via-navy/60 to-navy/30"
+          style={{ opacity: overlayOpacity }}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-navy/20" />
-      </div>
+      </motion.div>
 
-      <div className="max-w-[1200px] mx-auto px-5 md:px-8 w-full py-16 md:py-24 relative z-10 pt-[120px]">
+      {/* Floating decorative orbs */}
+      <FloatingOrb
+        className="bg-bright-turquoise/10 blur-3xl -top-20 -right-20"
+        size={300}
+        delay={0}
+        duration={8}
+      />
+      <FloatingOrb
+        className="bg-deep-teal/10 blur-3xl bottom-20 -left-16"
+        size={250}
+        delay={2}
+        duration={7}
+      />
+
+      <motion.div
+        className="max-w-[1200px] mx-auto px-5 md:px-8 w-full py-16 md:py-24 relative z-10 pt-[120px]"
+        style={{ y: textY }}
+      >
         <div className="max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-bright-turquoise mb-4">
+            <motion.span
+              className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-bright-turquoise mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
               Building Community Since 2021
-            </span>
-            <h1 className="font-sora font-bold text-[40px] md:text-[64px] leading-[1.1] tracking-[-0.02em] text-white mb-6">
+            </motion.span>
+            <motion.h1
+              className="font-sora font-bold text-[40px] md:text-[64px] leading-[1.1] tracking-[-0.02em] text-white mb-6"
+              initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
               Empowering AAPI Undergraduates to Dream{" "}
-              <span className="text-bright-turquoise">Fearlessly</span>
-            </h1>
-            <p className="font-inter text-lg md:text-xl text-white/85 leading-relaxed mb-8 max-w-lg">
+              <motion.span
+                className="text-bright-turquoise inline-block"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              >
+                Fearlessly
+              </motion.span>
+            </motion.h1>
+            <motion.p
+              className="font-inter text-lg md:text-xl text-white/85 leading-relaxed mb-8 max-w-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
               Mentorship, professional development, and career advancement for first-generation,
               low-income AAPI undergraduates in New York.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <a
+            </motion.p>
+            <motion.div
+              className="flex flex-wrap gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <motion.a
                 href="#programs"
-                className="font-inter font-semibold text-base bg-white text-deep-teal px-8 py-3.5 rounded-full hover:bg-off-white hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+                className="font-inter font-semibold text-base bg-white text-deep-teal px-8 py-3.5 rounded-full hover:bg-off-white hover:shadow-lg transition-all duration-300"
+                whileHover={{ y: -2, scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Explore Programs
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="#donate"
-                className="font-inter font-semibold text-base bg-warm-gold text-navy px-8 py-3.5 rounded-full hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+                className="font-inter font-semibold text-base bg-warm-gold text-navy px-8 py-3.5 rounded-full hover:shadow-lg transition-all duration-300"
+                whileHover={{ y: -2, scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Donate
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 href="mailto:kevin@asianamericandream.org?subject=Partnership%20Inquiry"
-                className="font-inter font-semibold text-base bg-white/10 backdrop-blur-sm text-white border border-white/25 px-8 py-3.5 rounded-full hover:bg-white/20 hover:border-white/50 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+                className="font-inter font-semibold text-base bg-white/10 backdrop-blur-sm text-white border border-white/25 px-8 py-3.5 rounded-full hover:bg-white/20 hover:border-white/50 hover:shadow-lg transition-all duration-300"
+                whileHover={{ y: -2, scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Partner With Us
-              </a>
-            </div>
+              </motion.a>
+            </motion.div>
           </motion.div>
 
           {/* Floating community faces strip */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.8, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="mt-12 flex items-center gap-4"
           >
             <div className="flex -space-x-3">
               {["jack-tran", "james-cheng", "jason-huang", "kevin-ha", "jennifer-young"].map(
-                (name) => (
-                  <div
+                (name, i) => (
+                  <motion.div
                     key={name}
                     className="w-11 h-11 rounded-full border-2 border-white overflow-hidden relative"
+                    initial={{ opacity: 0, scale: 0.5, x: -10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ delay: 0.9 + i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <Image
                       src={`${BASE}/images/team/${name}.jpg`}
@@ -281,7 +490,7 @@ function Hero() {
                       className="object-cover"
                       sizes="44px"
                     />
-                  </div>
+                  </motion.div>
                 )
               )}
             </div>
@@ -291,7 +500,27 @@ function Hero() {
             </div>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 0.6 }}
+      >
+        <motion.div
+          className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-1.5"
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <motion.div
+            className="w-1.5 h-1.5 rounded-full bg-white/80"
+            animate={{ y: [0, 16, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
@@ -329,20 +558,28 @@ function About() {
   }, []);
 
   return (
-    <section id="about" className="py-16 md:py-24 bg-white">
-      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
+    <section id="about" className="py-16 md:py-24 bg-white relative overflow-hidden">
+      {/* Decorative orbs */}
+      <FloatingOrb
+        className="bg-bright-turquoise/5 blur-3xl -top-32 right-0"
+        size={400}
+        delay={1}
+        duration={10}
+      />
+
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-10">
         <SectionWrapper>
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             {/* Left - Story */}
             <div>
               <motion.span
-                variants={fadeUp}
+                variants={slideFromLeft}
                 className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-deep-teal mb-3"
               >
                 Our Mission
               </motion.span>
               <motion.h2
-                variants={fadeUp}
+                variants={blurFadeUp}
                 className="font-sora font-semibold text-[28px] md:text-[42px] leading-[1.2] tracking-[-0.01em] text-charcoal mb-6"
               >
                 Bridging the Gap for AAPI Communities
@@ -361,8 +598,12 @@ function About() {
             </div>
 
             {/* Right - Stat callout carousel */}
-            <motion.div variants={fadeUp}>
-              <div className="bg-off-white rounded-3xl p-8 md:p-10 relative overflow-hidden">
+            <motion.div variants={slideFromRight}>
+              <motion.div
+                className="bg-off-white rounded-3xl p-8 md:p-10 relative overflow-hidden"
+                whileHover={{ boxShadow: "0 12px 40px rgba(26,107,122,0.12)" }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-6">
                   <Image
                     src={`${BASE}/images/events/event-1.jpg`}
@@ -379,9 +620,9 @@ function About() {
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeSlide}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: 20, filter: "blur(4px)" }}
+                      animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: -20, filter: "blur(4px)" }}
                       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                     >
                       <div className="flex items-baseline gap-2 mb-4">
@@ -398,21 +639,36 @@ function About() {
                     </motion.div>
                   </AnimatePresence>
                 </div>
+                {/* Progress bar for carousel */}
                 <div className="mt-6 flex items-center gap-3">
                   {whyItMattersSlides.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setActiveSlide(i)}
                       aria-label={`Go to slide ${i + 1}`}
-                      className={`rounded-full transition-all duration-300 ${
-                        i === activeSlide
-                          ? "w-3 h-3 bg-bright-turquoise"
-                          : "w-2 h-2 bg-deep-teal/40 hover:bg-deep-teal/70"
-                      }`}
-                    />
+                      className="relative rounded-full overflow-hidden transition-all duration-300"
+                      style={{
+                        width: i === activeSlide ? 32 : 8,
+                        height: 8,
+                        backgroundColor: i === activeSlide ? "transparent" : "rgba(26,107,122,0.3)",
+                      }}
+                    >
+                      {i === activeSlide && (
+                        <>
+                          <span className="absolute inset-0 rounded-full bg-deep-teal/20" />
+                          <motion.span
+                            className="absolute inset-0 rounded-full bg-bright-turquoise origin-left"
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 5, ease: "linear" }}
+                            key={`progress-${activeSlide}`}
+                          />
+                        </>
+                      )}
+                    </button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </SectionWrapper>
@@ -480,39 +736,44 @@ function Programs() {
   };
 
   return (
-    <section id="programs" className="py-16 md:py-24 bg-off-white">
-      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
-        <SectionWrapper>
-          <motion.div variants={fadeUp} className="text-center mb-14">
-            <span className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-deep-teal mb-3">
-              What We Do
-            </span>
-            <h2 className="font-sora font-semibold text-[28px] md:text-[42px] leading-[1.2] tracking-[-0.01em] text-charcoal">
-              Our Programs
-            </h2>
-            <p className="font-inter text-base md:text-lg text-dark-gray max-w-3xl mx-auto mt-4 leading-relaxed">
-              Three programs designed to support AAPI undergraduates at every stage of their
-              professional journey. Click any program to learn more.
-            </p>
-          </motion.div>
+    <section id="programs" className="py-16 md:py-24 bg-off-white relative overflow-hidden">
+      <FloatingOrb
+        className="bg-deep-teal/5 blur-3xl -bottom-20 -left-20"
+        size={350}
+        delay={0.5}
+        duration={9}
+      />
 
-          <div className="grid md:grid-cols-3 gap-6">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-10">
+        <SectionWrapper>
+          <SectionHeading
+            tag="What We Do"
+            title="Our Programs"
+            description="Three programs designed to support AAPI undergraduates at every stage of their professional journey. Click any program to learn more."
+          />
+
+          <motion.div className="grid md:grid-cols-3 gap-6" variants={widerStagger}>
             {programData.map((p, index) => {
               const isActive = activeProgram === index;
               return (
                 <motion.div
                   key={p.title}
-                  variants={fadeUp}
+                  variants={cardReveal}
                   className="flex flex-col"
                 >
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => toggleProgram(index)}
-                    className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group border ${
+                    className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-300 group border ${
                       isActive
                         ? "border-deep-teal ring-2 ring-deep-teal/15"
                         : "border-transparent"
                     }`}
+                    whileHover={{
+                      y: -6,
+                      boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
+                    }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <div className="relative w-full aspect-[4/3] overflow-hidden">
                       <Image
@@ -545,7 +806,7 @@ function Programs() {
                         </motion.svg>
                       </span>
                     </div>
-                  </button>
+                  </motion.button>
 
                   {/* Inline expanded details */}
                   <AnimatePresence>
@@ -566,10 +827,13 @@ function Programs() {
                           </p>
 
                           <div className="space-y-2 mb-5">
-                            {p.highlights.map((highlight) => (
-                              <div
+                            {p.highlights.map((highlight, hi) => (
+                              <motion.div
                                 key={highlight}
                                 className="flex items-start gap-2.5"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.1 + hi * 0.08, duration: 0.4 }}
                               >
                                 <svg className="w-5 h-5 mt-0.5 flex-shrink-0 text-bright-turquoise" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -577,7 +841,7 @@ function Programs() {
                                 <span className="font-inter text-sm text-dark-gray leading-relaxed">
                                   {highlight}
                                 </span>
-                              </div>
+                              </motion.div>
                             ))}
                           </div>
 
@@ -589,12 +853,14 @@ function Programs() {
                           ) : null}
 
                           <div className="flex flex-wrap gap-3">
-                            <a
+                            <motion.a
                               href="#donate"
                               className="font-inter font-semibold text-sm border-2 border-deep-teal text-deep-teal px-6 py-3 rounded-full hover:bg-deep-teal hover:text-white transition-all duration-300"
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
                             >
                               Support This Program
-                            </a>
+                            </motion.a>
                           </div>
                         </div>
                       </motion.div>
@@ -603,12 +869,17 @@ function Programs() {
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Program gallery strip */}
           <motion.div variants={fadeUp} className="mt-10 grid grid-cols-5 gap-3">
             {[4, 5, 6, 7, 8].map((n) => (
-              <div key={n} className="relative aspect-square rounded-2xl overflow-hidden">
+              <motion.div
+                key={n}
+                className="relative aspect-square rounded-2xl overflow-hidden"
+                whileHover={{ scale: 1.05, zIndex: 10 }}
+                transition={{ duration: 0.3 }}
+              >
                 <Image
                   src={`${BASE}/images/programs/program-${n}.jpg`}
                   alt={`Program activity ${n}`}
@@ -616,7 +887,7 @@ function Programs() {
                   className="object-cover hover:scale-110 transition-transform duration-500"
                   sizes="(max-width: 768px) 20vw, 200px"
                 />
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </SectionWrapper>
@@ -935,6 +1206,91 @@ const aadreamTeam = [
   { name: "Sarah Yoo", role: "Co-Director of Community", bio: "Strategy & Business Operations Associate at LinkedIn. Previously part of the Strategy Practice at EY-Parthenon. With roots in both Boston and Seoul, passionate about building community for Asian American professionals in New York.", image: `${BASE}/images/team/sarah-yoo.jpg` },
 ];
 
+/* ─── Team Member Card with enhanced hover ─── */
+function TeamMemberCard({
+  member,
+  selectedPerson,
+  togglePerson,
+  personKey,
+  ringColor = "bright-turquoise",
+  size = "md",
+  showRole = true,
+}: {
+  member: { name: string; role?: string; title?: string; bio: string; image: string };
+  selectedPerson: string | null;
+  togglePerson: (name: string) => void;
+  personKey: string;
+  ringColor?: string;
+  size?: "sm" | "md";
+  showRole?: boolean;
+}) {
+  const sizeClasses = size === "md"
+    ? "w-24 h-24 md:w-28 md:h-28"
+    : "w-20 h-20 md:w-24 md:h-24";
+  const ringWidth = size === "md" ? "ring-3" : "ring-2";
+
+  return (
+    <motion.div
+      variants={scaleIn}
+      className="flex flex-col items-center"
+    >
+      <button
+        type="button"
+        onClick={() => member.bio ? togglePerson(personKey) : undefined}
+        className={`flex flex-col items-center group ${member.bio ? "cursor-pointer" : "cursor-default"}`}
+      >
+        <motion.div
+          className={`${sizeClasses} rounded-full overflow-hidden shadow-lg ${ringWidth} ring-${ringColor}/20 relative`}
+          whileHover={{
+            scale: 1.08,
+            boxShadow: "0 8px 30px rgba(26,107,122,0.2)",
+          }}
+          animate={selectedPerson === personKey ? {
+            boxShadow: "0 0 0 3px rgba(79,209,199,0.5)",
+          } : {}}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Image
+            src={member.image}
+            alt={member.name}
+            fill
+            className="object-cover"
+            sizes="112px"
+          />
+          {/* Hover overlay */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-t from-navy/40 to-transparent"
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          />
+        </motion.div>
+        <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{member.name}</p>
+        {showRole && member.role && (
+          <p className="font-inter text-xs text-deep-teal font-medium">{member.role}</p>
+        )}
+        {!showRole && <p className="font-inter text-xs text-dark-gray">Advisory</p>}
+        {member.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{member.title}</p>}
+      </button>
+      <AnimatePresence>
+        {selectedPerson === personKey && member.bio && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, scale: 0.95 }}
+            animate={{ opacity: 1, height: "auto", scale: 1 }}
+            exit={{ opacity: 0, height: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
+              {member.bio}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
 function Team() {
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
 
@@ -943,171 +1299,98 @@ function Team() {
   };
 
   return (
-    <section id="team" className="py-16 md:py-24 bg-white">
-      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
+    <section id="team" className="py-16 md:py-24 bg-white relative overflow-hidden">
+      <FloatingOrb
+        className="bg-warm-gold/5 blur-3xl top-1/4 -right-20"
+        size={300}
+        delay={1.5}
+        duration={8}
+      />
+
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-10">
         <SectionWrapper>
-          <motion.div variants={fadeUp} className="text-center mb-14">
-            <span className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-deep-teal mb-3">
-              Our Community
-            </span>
-            <h2 className="font-sora font-semibold text-[28px] md:text-[42px] leading-[1.2] tracking-[-0.01em] text-charcoal">
-              Meet the People Behind the Dream
-            </h2>
-          </motion.div>
+          <SectionHeading
+            tag="Our Community"
+            title="Meet the People Behind the Dream"
+          />
 
           {/* Board Members - Circular portraits */}
           <motion.div variants={fadeUp}>
-            <h3 className="font-sora font-semibold text-xl text-charcoal text-center mb-8">
+            <motion.h3
+              className="font-sora font-semibold text-xl text-charcoal text-center mb-8"
+              variants={blurFadeUp}
+            >
               Board of Directors
-            </h3>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16">
+            </motion.h3>
+            <motion.div
+              className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16"
+              variants={widerStagger}
+            >
               {boardMembers.map((m) => (
-                <motion.div
+                <TeamMemberCard
                   key={m.name}
-                  variants={fadeUp}
-                  className="flex flex-col items-center"
-                >
-                  <button
-                    type="button"
-                    onClick={() => m.bio ? togglePerson(m.name) : undefined}
-                    className={`flex flex-col items-center group ${m.bio ? "cursor-pointer" : "cursor-default"}`}
-                  >
-                    <div className={`w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-3 ring-bright-turquoise/20 group-hover:ring-bright-turquoise/50 relative ${
-                      selectedPerson === m.name ? "ring-bright-turquoise/70" : ""
-                    }`}>
-                      <Image
-                        src={m.image}
-                        alt={m.name}
-                        fill
-                        className="object-cover"
-                        sizes="112px"
-                      />
-                    </div>
-                    <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
-                    <p className="font-inter text-xs text-deep-teal font-medium">{m.role}</p>
-                    {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
-                  </button>
-                  <AnimatePresence>
-                    {selectedPerson === m.name && m.bio && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
-                          {m.bio}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+                  member={m}
+                  selectedPerson={selectedPerson}
+                  togglePerson={togglePerson}
+                  personKey={m.name}
+                  ringColor="bright-turquoise"
+                  size="md"
+                />
               ))}
-            </div>
+            </motion.div>
           </motion.div>
 
           {/* Advisory Board */}
           <motion.div variants={fadeUp}>
-            <h3 className="font-sora font-semibold text-xl text-charcoal text-center mb-8">
+            <motion.h3
+              className="font-sora font-semibold text-xl text-charcoal text-center mb-8"
+              variants={blurFadeUp}
+            >
               Advisory Board
-            </h3>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16">
+            </motion.h3>
+            <motion.div
+              className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16"
+              variants={widerStagger}
+            >
               {advisoryMembers.map((m) => (
-                <motion.div
+                <TeamMemberCard
                   key={m.name}
-                  variants={fadeUp}
-                  className="flex flex-col items-center"
-                >
-                  <button
-                    type="button"
-                    onClick={() => m.bio ? togglePerson(`advisory-${m.name}`) : undefined}
-                    className={`flex flex-col items-center group ${m.bio ? "cursor-pointer" : "cursor-default"}`}
-                  >
-                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-2 ring-warm-gold/20 group-hover:ring-warm-gold/50 relative ${
-                      selectedPerson === `advisory-${m.name}` ? "ring-warm-gold/70" : ""
-                    }`}>
-                      <Image
-                        src={m.image}
-                        alt={m.name}
-                        fill
-                        className="object-cover"
-                        sizes="96px"
-                      />
-                    </div>
-                    <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
-                    <p className="font-inter text-xs text-dark-gray">Advisory</p>
-                    {m.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{m.title}</p>}
-                  </button>
-                  <AnimatePresence>
-                    {selectedPerson === `advisory-${m.name}` && m.bio && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
-                          {m.bio}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+                  member={m}
+                  selectedPerson={selectedPerson}
+                  togglePerson={togglePerson}
+                  personKey={`advisory-${m.name}`}
+                  ringColor="warm-gold"
+                  size="sm"
+                  showRole={false}
+                />
               ))}
-            </div>
+            </motion.div>
           </motion.div>
 
           {/* AADream Team */}
           <motion.div variants={fadeUp}>
-            <h3 className="font-sora font-semibold text-xl text-charcoal text-center mb-8">
+            <motion.h3
+              className="font-sora font-semibold text-xl text-charcoal text-center mb-8"
+              variants={blurFadeUp}
+            >
               AADream Team
-            </h3>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+            </motion.h3>
+            <motion.div
+              className="flex flex-wrap justify-center gap-6 md:gap-8"
+              variants={widerStagger}
+            >
               {aadreamTeam.map((m) => (
-                <motion.div
+                <TeamMemberCard
                   key={m.name}
-                  variants={fadeUp}
-                  className="flex flex-col items-center"
-                >
-                  <button
-                    type="button"
-                    onClick={() => m.bio ? togglePerson(`team-${m.name}`) : undefined}
-                    className={`flex flex-col items-center group ${m.bio ? "cursor-pointer" : "cursor-default"}`}
-                  >
-                    <div className={`w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg group-hover:scale-105 group-hover:shadow-xl transition-all duration-300 ring-2 ring-bright-turquoise/20 group-hover:ring-bright-turquoise/50 relative ${
-                      selectedPerson === `team-${m.name}` ? "ring-bright-turquoise/70" : ""
-                    }`}>
-                      <Image
-                        src={m.image}
-                        alt={m.name}
-                        fill
-                        className="object-cover"
-                        sizes="96px"
-                      />
-                    </div>
-                    <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{m.name}</p>
-                    <p className="font-inter text-xs text-deep-teal font-medium">{m.role}</p>
-                  </button>
-                  <AnimatePresence>
-                    {selectedPerson === `team-${m.name}` && m.bio && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
-                          {m.bio}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+                  member={m}
+                  selectedPerson={selectedPerson}
+                  togglePerson={togglePerson}
+                  personKey={`team-${m.name}`}
+                  ringColor="bright-turquoise"
+                  size="sm"
+                />
               ))}
-            </div>
+            </motion.div>
           </motion.div>
         </SectionWrapper>
       </div>
@@ -1204,38 +1487,44 @@ function Community() {
   };
 
   return (
-    <section id="community" className="py-16 md:py-24 bg-off-white">
-      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
-        <SectionWrapper>
-          <motion.div variants={fadeUp} className="text-center mb-14">
-            <span className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-deep-teal mb-3">
-              Community Events
-            </span>
-            <h2 className="font-sora font-semibold text-[28px] md:text-[42px] leading-[1.2] tracking-[-0.01em] text-charcoal">
-              Where Connections Come to Life
-            </h2>
-            <p className="font-inter text-base md:text-lg text-dark-gray max-w-3xl mx-auto mt-4 leading-relaxed">
-              From galas to benefit dinners to tennis fundraisers, our events bring the AAPI community together. Click any event to learn more.
-            </p>
-          </motion.div>
+    <section id="community" className="py-16 md:py-24 bg-off-white relative overflow-hidden">
+      <FloatingOrb
+        className="bg-bright-turquoise/5 blur-3xl top-10 -left-16"
+        size={280}
+        delay={0.8}
+        duration={9}
+      />
 
-          <div className="grid md:grid-cols-3 gap-6">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-10">
+        <SectionWrapper>
+          <SectionHeading
+            tag="Community Events"
+            title="Where Connections Come to Life"
+            description="From galas to benefit dinners to tennis fundraisers, our events bring the AAPI community together. Click any event to learn more."
+          />
+
+          <motion.div className="grid md:grid-cols-3 gap-6" variants={widerStagger}>
             {eventSeries.map((series, index) => {
               const isActive = activeSeries === index;
               return (
                 <motion.div
                   key={series.title}
-                  variants={fadeUp}
+                  variants={cardReveal}
                   className="flex flex-col"
                 >
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => toggleSeries(index)}
-                    className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 group border ${
+                    className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-300 group border ${
                       isActive
                         ? "border-deep-teal ring-2 ring-deep-teal/15"
                         : "border-transparent"
                     }`}
+                    whileHover={{
+                      y: -6,
+                      boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
+                    }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <div className="relative w-full aspect-[4/3] overflow-hidden">
                       <Image
@@ -1272,7 +1561,7 @@ function Community() {
                         </motion.svg>
                       </span>
                     </div>
-                  </button>
+                  </motion.button>
 
                   <AnimatePresence>
                     {isActive && (
@@ -1289,12 +1578,15 @@ function Community() {
                           </p>
 
                           <div className="space-y-3">
-                            {series.editions.map((edition) => (
-                              <a
+                            {series.editions.map((edition, ei) => (
+                              <motion.a
                                 key={edition.year}
                                 href={edition.href}
                                 {...(edition.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                                 className="flex items-start gap-3 p-3 rounded-2xl bg-off-white border border-light-gray hover:border-deep-teal/30 hover:bg-bright-turquoise/5 transition-all duration-200 group/edition"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: ei * 0.1, duration: 0.3 }}
                               >
                                 <span className={`flex-shrink-0 font-sora font-bold text-xs px-2.5 py-1 rounded-full ${
                                   edition.upcoming
@@ -1313,23 +1605,25 @@ function Community() {
                                 <svg className="w-4 h-4 mt-1 flex-shrink-0 text-dark-gray group-hover/edition:text-deep-teal group-hover/edition:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                 </svg>
-                              </a>
+                              </motion.a>
                             ))}
                           </div>
 
                           {series.editions.some((e) => e.upcoming) && (
                             <div className="mt-4">
-                              <a
+                              <motion.a
                                 href={series.editions.find((e) => e.upcoming)?.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 font-inter font-semibold text-sm bg-warm-gold text-navy px-6 py-3 rounded-full hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300"
+                                className="inline-flex items-center gap-2 font-inter font-semibold text-sm bg-warm-gold text-navy px-6 py-3 rounded-full hover:shadow-lg transition-all duration-300"
+                                whileHover={{ y: -2, scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
                               >
                                 Get Tickets
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                 </svg>
-                              </a>
+                              </motion.a>
                             </div>
                           )}
                         </div>
@@ -1339,7 +1633,7 @@ function Community() {
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </SectionWrapper>
       </div>
     </section>
@@ -1358,6 +1652,8 @@ function PhotoBanner() {
               variants={fadeUp}
               className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-md"
               style={{ rotate: `${(i % 2 === 0 ? 1 : -1) * (3 + i)}deg` }}
+              whileHover={{ scale: 1.15, rotate: 0, zIndex: 10 }}
+              transition={{ duration: 0.3 }}
             >
               <Image
                 src={m.image}
@@ -1368,9 +1664,12 @@ function PhotoBanner() {
               />
             </motion.div>
           ))}
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-bright-turquoise/20 flex items-center justify-center">
+          <motion.div
+            className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-bright-turquoise/20 flex items-center justify-center"
+            whileHover={{ scale: 1.1 }}
+          >
             <span className="font-sora font-bold text-deep-teal text-sm md:text-base">+10</span>
-          </div>
+          </motion.div>
         </motion.div>
       </SectionWrapper>
     </section>
@@ -1379,33 +1678,41 @@ function PhotoBanner() {
 
 /* ─── 10. Final CTA ─── */
 function CTA() {
+  const ctaRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ctaRef,
+    offset: ["start end", "end start"],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+
   return (
     <section
+      ref={ctaRef}
       id="donate"
       className="py-16 md:py-24 relative overflow-hidden"
     >
-      {/* Background with event image */}
-      <div className="absolute inset-0">
+      {/* Background with parallax image */}
+      <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <Image
           src={`${BASE}/images/events/event-2.jpg`}
           alt=""
           fill
-          className="object-cover"
+          className="object-cover scale-120"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-deep-teal/90 via-bright-turquoise/80 to-deep-teal/90" />
-      </div>
+      </motion.div>
 
       <div className="max-w-[800px] mx-auto px-5 md:px-8 text-center relative z-10">
         <SectionWrapper className="flex flex-col items-center">
           <motion.span
-            variants={fadeUp}
+            variants={blurFadeUp}
             className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-white/80 mb-3"
           >
             Join the Movement
           </motion.span>
           <motion.h2
-            variants={fadeUp}
+            variants={blurFadeUp}
             className="font-sora font-bold text-[28px] md:text-[48px] leading-[1.15] tracking-[-0.01em] text-white mb-6"
           >
             Help Us Build the Next Generation of AAPI Leaders
@@ -1415,20 +1722,39 @@ function CTA() {
             students to achieve their dreams.
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4">
-            <a
-              href="https://givebutter.com/asianamericandream"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-inter font-semibold text-base bg-warm-gold text-navy px-10 py-4 rounded-full hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300"
-            >
-              Donate Now
-            </a>
-            <a
+            {/* Pulsing glow donate button */}
+            <motion.div className="relative">
+              <motion.div
+                className="absolute inset-0 rounded-full bg-warm-gold/40"
+                animate={{
+                  scale: [1, 1.15, 1],
+                  opacity: [0.5, 0, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              <motion.a
+                href="https://givebutter.com/asianamericandream"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative font-inter font-semibold text-base bg-warm-gold text-navy px-10 py-4 rounded-full hover:shadow-xl transition-all duration-300 inline-block"
+                whileHover={{ y: -3, scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                Donate Now
+              </motion.a>
+            </motion.div>
+            <motion.a
               href="#programs"
-              className="font-inter font-semibold text-base bg-white/15 backdrop-blur-sm text-white border-2 border-white/30 px-10 py-4 rounded-full hover:bg-white/25 hover:-translate-y-0.5 transition-all duration-300"
+              className="font-inter font-semibold text-base bg-white/15 backdrop-blur-sm text-white border-2 border-white/30 px-10 py-4 rounded-full hover:bg-white/25 transition-all duration-300"
+              whileHover={{ y: -3, scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               Get Involved
-            </a>
+            </motion.a>
           </motion.div>
         </SectionWrapper>
       </div>
@@ -1485,29 +1811,33 @@ function Footer() {
             <h4 className="font-inter font-semibold text-sm text-white mb-4">Connect</h4>
             <div className="flex gap-4">
               {/* LinkedIn */}
-              <a
+              <motion.a
                 href="https://www.linkedin.com/company/asianamericandream"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-bright-turquoise/20 hover:text-bright-turquoise hover:scale-110 transition-all duration-300"
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-bright-turquoise/20 hover:text-bright-turquoise transition-all duration-300"
                 aria-label="LinkedIn"
+                whileHover={{ scale: 1.15, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
-              </a>
+              </motion.a>
               {/* Instagram */}
-              <a
+              <motion.a
                 href="https://www.instagram.com/the_asianamericandream/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-bright-turquoise/20 hover:text-bright-turquoise hover:scale-110 transition-all duration-300"
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-bright-turquoise/20 hover:text-bright-turquoise transition-all duration-300"
                 aria-label="Instagram"
+                whileHover={{ scale: 1.15, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
                 </svg>
-              </a>
+              </motion.a>
             </div>
             <a
               href="mailto:info@asianamericandream.org"
