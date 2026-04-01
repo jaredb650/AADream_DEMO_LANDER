@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "export",
-  // basePath: "/AADream_DEMO_LANDER", // uncomment for GitHub Pages deploy
+  basePath: "/AADream_DEMO_LANDER",
   images: {
     unoptimized: true,
   },
