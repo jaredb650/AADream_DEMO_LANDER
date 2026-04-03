@@ -346,6 +346,95 @@ function Navbar() {
 }
 
 /* ─── 3. Hero ─── */
+function HeroGridGlow() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const gridSize = 50;
+    const gridColor = "rgba(255, 255, 255, 0.06)";
+    const glowColorOptions = ["#1A6B7A", "#3BA8D4", "#4FD1C7", "#0F2A44", "#C8EBF5"];
+    let glows: { x: number; y: number; targetX: number; targetY: number; radius: number; speed: number; color: string; alpha: number; setNewTarget: () => void; update: () => void; draw: () => void }[] = [];
+    let frameId: number;
+
+    function createGlow() {
+      const x = Math.floor(Math.random() * (canvas!.width / gridSize)) * gridSize;
+      const y = Math.floor(Math.random() * (canvas!.height / gridSize)) * gridSize;
+      const glow = {
+        x, y,
+        targetX: x, targetY: y,
+        radius: Math.random() * 100 + 50,
+        speed: Math.random() * 0.015 + 0.008,
+        color: glowColorOptions[Math.floor(Math.random() * glowColorOptions.length)],
+        alpha: 0,
+        setNewTarget() {
+          this.targetX = Math.floor(Math.random() * (canvas!.width / gridSize)) * gridSize;
+          this.targetY = Math.floor(Math.random() * (canvas!.height / gridSize)) * gridSize;
+        },
+        update() {
+          this.x += (this.targetX - this.x) * this.speed;
+          this.y += (this.targetY - this.y) * this.speed;
+          if (Math.abs(this.targetX - this.x) < 1 && Math.abs(this.targetY - this.y) < 1) this.setNewTarget();
+          if (this.alpha < 1) this.alpha += 0.01;
+        },
+        draw() {
+          ctx!.globalAlpha = this.alpha;
+          const grad = ctx!.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+          grad.addColorStop(0, this.color);
+          grad.addColorStop(1, "transparent");
+          ctx!.fillStyle = grad;
+          ctx!.beginPath();
+          ctx!.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+          ctx!.fill();
+          ctx!.globalAlpha = 1;
+        },
+      };
+      glow.setNewTarget();
+      return glow;
+    }
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      glows = Array.from({ length: 12 }, () => createGlow());
+    };
+
+    const drawGrid = () => {
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+      }
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawGrid();
+      glows.forEach((g) => { g.update(); g.draw(); });
+      frameId = requestAnimationFrame(animate);
+    };
+
+    resize();
+    animate();
+    window.addEventListener("resize", resize);
+    return () => { window.removeEventListener("resize", resize); cancelAnimationFrame(frameId); };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 z-0 h-full w-full opacity-60"
+    />
+  );
+}
+
 function Hero() {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -354,41 +443,11 @@ function Hero() {
   });
 
   const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.6, 0.9]);
 
   return (
-    <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Full-bleed hero group photo with parallax zoom */}
-      <motion.div className="absolute inset-0" style={{ scale: imageScale }}>
-        <Image
-          src={`${BASE}/images/hero-group.jpg`}
-          alt="Asian American Dream community group photo"
-          fill
-          className="object-cover"
-          priority
-          sizes="100vw"
-        />
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-navy/85 via-navy/60 to-navy/30"
-          style={{ opacity: overlayOpacity }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-navy/20" />
-      </motion.div>
-
-      {/* Floating decorative orbs */}
-      <FloatingOrb
-        className="bg-bright-turquoise/10 blur-3xl -top-20 -right-20"
-        size={300}
-        delay={0}
-        duration={8}
-      />
-      <FloatingOrb
-        className="bg-deep-teal/10 blur-3xl bottom-20 -left-16"
-        size={250}
-        delay={2}
-        duration={7}
-      />
+    <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden" style={{ backgroundColor: "#0F2A44" }}>
+      {/* Animated grid glow background */}
+      <HeroGridGlow />
 
       <motion.div
         className="max-w-[1200px] mx-auto px-5 md:px-8 w-full py-16 md:py-24 relative z-10 pt-[120px]"
@@ -430,8 +489,7 @@ function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              Mentorship, professional development, and career advancement for first-generation,
-              low-income AAPI undergraduates in New York.
+              Mentorship, professional development, and career advancement opportunities for AAPI undergraduates in New York.
             </motion.p>
             <motion.div
               className="flex flex-wrap gap-4"
@@ -456,7 +514,7 @@ function Hero() {
                 Donate
               </motion.a>
               <motion.a
-                href="mailto:kevin@asianamericandream.org?subject=Partnership%20Inquiry"
+                href="mailto:info@asianamericandream.org?subject=Partnership%20Inquiry"
                 className="font-inter font-semibold text-base bg-white/10 backdrop-blur-sm text-white border border-white/25 px-8 py-3.5 rounded-full hover:bg-white/20 hover:border-white/50 hover:shadow-lg transition-all duration-300"
                 whileHover={{ y: -2, scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -495,7 +553,7 @@ function Hero() {
               )}
             </div>
             <div>
-              <p className="font-sora font-bold text-white text-sm">150+ Students Empowered</p>
+              <p className="font-sora font-bold text-white text-sm">1000+ Students Empowered</p>
               <p className="font-inter text-xs text-white/70">Join our growing community</p>
             </div>
           </motion.div>
@@ -534,10 +592,16 @@ const whyItMattersSlides = [
       "The top 10% of AAPI earners make 11 times the bottom 10% \u2014 the largest income disparity of any racial group in the United States. We exist to change this.",
   },
   {
-    stat: "72%",
-    label: "Overlooked in Leadership",
+    stat: "0",
+    label: "Career Readiness Programs",
     description:
-      "Despite being the fastest-growing racial group in the U.S., AAPIs hold only 2% of Fortune 500 CEO positions. Our programs build the pipeline for the next generation of AAPI leaders.",
+      "Across the United States, there is a severe lack of career readiness programs for AAPI college students. Long-established and well-endowed organizations exclude AAPI out of their target communities.",
+  },
+  {
+    stat: "Myth",
+    label: "The Model Minority",
+    description:
+      "This systemic oversight stems from the harmful and pervasive model minority myth that all AAPI are wealthy, well-connected, and possess abundant social capital.",
   },
   {
     stat: "1 in 4",
@@ -582,18 +646,16 @@ function About() {
                 variants={blurFadeUp}
                 className="font-sora font-semibold text-[28px] md:text-[42px] leading-[1.2] tracking-[-0.01em] text-charcoal mb-6"
               >
-                Bridging the Gap for AAPI Communities
+                Bridging the Gap for the AAPI Community
               </motion.h2>
               <motion.p variants={fadeUp} className="font-inter text-base md:text-lg text-dark-gray leading-relaxed mb-5">
-                Founded in May 2021, our mission is to provide mentorship networks, professional
-                development training, and career advancement opportunities for underserved AAPI
-                undergraduates, with the goal of helping them achieve their unique vision of the
-                Asian American dream.
+                Asian American Dream (AAD) was founded in May 2021 to forge new pathways to career
+                success for a historically overlooked population.
               </motion.p>
               <motion.p variants={fadeUp} className="font-inter text-base md:text-lg text-dark-gray leading-relaxed">
-                First-generation, low-income AAPI undergraduates in New York face unique challenges
-                in accessing mentorship and career opportunities. We provide the community, guidance,
-                and resources needed to transform aspirations into achievements.
+                Our mission is to provide mentorship networks, professional development training,
+                and career advancement opportunities for underserved AAPI undergraduates, with the
+                goal of helping them achieve their unique vision of the Asian American dream.
               </motion.p>
             </div>
 
@@ -606,8 +668,8 @@ function About() {
               >
                 <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-6">
                   <Image
-                    src={`${BASE}/images/events/event-1.jpg`}
-                    alt="AADream community event"
+                    src={`${BASE}/images/hero-group.jpg`}
+                    alt="AADream community"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -680,6 +742,20 @@ function About() {
 /* ─── 5. Programs ─── */
 const programData = [
   {
+    title: "AAPI Creator Incubator",
+    tagline: "Empowering the next generation of AAPI creators.",
+    description:
+      "The AAPI Creator Incubator is a 5-month fellowship for NYC-based AAPI undergraduates pursuing a career in content creation.",
+    details:
+      "Fellows receive a catalytic $2,500 grant, 1:1 mentorship from an established creator, and monthly workshop dinners focused on brand strategy, viral production, and monetization.",
+    highlights: [
+      "5-month fellowship for NYC-based AAPI undergraduates",
+      "$2,500 catalytic grant",
+      "Creator mentorship plus monthly workshop dinners",
+    ],
+    image: `${BASE}/images/programs/creator-incubator.jpg`,
+  },
+  {
     title: "Kin Mentorship Program",
     tagline:
       "Empowering under-resourced AAPI undergraduates through career-centric, community-rooted mentorship.",
@@ -697,20 +773,6 @@ const programData = [
     image: `${BASE}/images/programs/program-1.jpg`,
   },
   {
-    title: "AAPI Creator Incubator",
-    tagline: "Empowering the next generation of AAPI creators.",
-    description:
-      "The AAPI Creator Incubator is a 5-month fellowship for NYC-based AAPI undergraduates pursuing a career in content creation.",
-    details:
-      "Fellows receive a catalytic $2,500 grant, 1:1 mentorship from an established creator, and monthly workshop dinners focused on brand strategy, viral production, and monetization.",
-    highlights: [
-      "5-month fellowship for NYC-based AAPI undergraduates",
-      "$2,500 catalytic grant",
-      "Creator mentorship plus monthly workshop dinners",
-    ],
-    image: `${BASE}/images/programs/program-2.jpg`,
-  },
-  {
     title: "Thriving AANHPI Leadership Accelerator",
     tagline:
       "Empowering AANHPI students to lead, thrive, and succeed on their own terms.",
@@ -724,7 +786,7 @@ const programData = [
       "Built for first-generation and/or low-income AANHPI students ages 18 to 25",
     ],
     partners: "Facilitated in partnership with TAAF and APALI.",
-    image: `${BASE}/images/programs/program-3.jpg`,
+    image: `${BASE}/images/programs/tala.jpeg`,
   },
 ];
 
@@ -749,7 +811,7 @@ function Programs() {
           <SectionHeading
             tag="What We Do"
             title="Our Programs"
-            description="Three programs designed to support AAPI undergraduates at every stage of their professional journey. Click any program to learn more."
+            description="At AAD, our programs bridge the gap between potential and opportunity. We forge career pathways for under-resourced AAPI undergraduates to connect with mentors, develop professionally, and achieve their unique vision of success. Through strategic partnerships and community-rooted initiatives, we're fostering a strong and supportive AAPI community. Click any program to learn more."
           />
 
           <motion.div className="grid md:grid-cols-3 gap-6" variants={widerStagger}>
@@ -764,7 +826,7 @@ function Programs() {
                   <motion.button
                     type="button"
                     onClick={() => toggleProgram(index)}
-                    className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-300 group border ${
+                    className={`text-left bg-white rounded-3xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.06)] transition-all duration-300 group border flex flex-col ${
                       isActive
                         ? "border-deep-teal ring-2 ring-deep-teal/15"
                         : "border-transparent"
@@ -775,7 +837,7 @@ function Programs() {
                     }}
                     transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <div className="relative w-full aspect-[4/3] overflow-hidden">
+                    <div className="relative w-full aspect-[4/3] overflow-hidden flex-shrink-0">
                       <Image
                         src={p.image}
                         alt={p.title}
@@ -784,11 +846,11 @@ function Programs() {
                         sizes="(max-width: 768px) 100vw, 33vw"
                       />
                     </div>
-                    <div className="p-7">
+                    <div className="p-7 flex flex-col flex-1">
                       <h3 className="font-sora font-semibold text-xl md:text-2xl text-charcoal mb-3">
                         {p.title}
                       </h3>
-                      <p className="font-inter text-base text-dark-gray leading-relaxed mb-4">
+                      <p className="font-inter text-base text-dark-gray leading-relaxed mb-4 flex-1">
                         {p.tagline}
                       </p>
                       <span className="inline-flex items-center gap-1.5 font-inter text-sm font-semibold text-deep-teal">
@@ -925,10 +987,10 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 }
 
 const stats = [
-  { value: 150, suffix: "+", label: "Students Mentored" },
-  { value: 50, suffix: "+", label: "Active Mentors" },
-  { value: 20, suffix: "+", label: "University Partners" },
-  { value: 95, suffix: "%", label: "Recommend to Peers" },
+  { value: 1000, suffix: "+", label: "Undergraduates Mentored" },
+  { value: 250, suffix: "+", label: "Mentorship Pairs Served Annually" },
+  { value: 50, suffix: "+", label: "University Partners" },
+  { value: 30, suffix: "+", label: "Corporate Partners" },
 ];
 
 function ParticleCanvas() {
@@ -1169,41 +1231,51 @@ function Impact() {
 
 /* ─── 7. Team - Board, Advisory & AADream Team with Real Photos ─── */
 const boardMembers = [
-  { name: "Jack Tran", role: "Chair", title: "Strategy & Product Management, American Express", bio: "Fintech professional in Strategy and Product Management at American Express. Previously at CVS Health and consulting firms EY and PwC. Board member of ACE NextGen New York.", image: `${BASE}/images/team/jack-tran.jpg` },
-  { name: "James Cheng", role: "Vice-Chair", title: "Global Senior Director of DEI, Zimmer Biomet", bio: "Global Senior Director and Head of Diversity, Equity, and Inclusion at Zimmer Biomet. Previously held leadership roles in inclusion and diversity at Gilead Sciences and Cargill.", image: `${BASE}/images/team/james-cheng.jpg` },
-  { name: "Jason Huang", role: "Treasurer", title: "Financial Advisor, Oppenheimer Co.", bio: "Financial Advisor at Oppenheimer Co. Inc. Certified Financial Planner since 2024. Eagle Scout Award recipient with 400+ hours of volunteer service.", image: `${BASE}/images/team/jason-huang.jpg` },
-  { name: "Andrew Pandolfo", role: "Secretary", title: "", bio: "", image: `${BASE}/images/team/andrew-pandolfo.jpg` },
-  { name: "Kevin Ha", role: "Founder & Executive Director", title: "2024-2025 Obama USA Leader", bio: "Founder and Executive Director of Asian American Dream. Selected as 2024-2025 Obama USA Leader and 2024 Fellow by The EGF Accelerator. Previously worked in Markets Group at Federal Reserve Bank of New York.", image: `${BASE}/images/team/kevin-ha.jpg` },
-  { name: "Carteneil Cheung", role: "Director", title: "Associate General Counsel, McKinsey & Company", bio: "Associate General Counsel at McKinsey & Company. Corporate attorney with experience at Paul, Weiss and Sidley Austin. Specializes in mergers, acquisitions, and strategic investments.", image: `${BASE}/images/team/carteneil-cheung.jpg` },
-  { name: "Jocelyn Cruz-Alfalla", role: "Director", title: "Dir. of Community & Schools Tennis, USTA Eastern", bio: "Director of Community and Schools Tennis at USTA Eastern managing grassroots grant programs. Previously Assistant Athletic Director at Marymount School. 18+ years in organizational development.", image: `${BASE}/images/team/jocelyn-cruz-alfalla.png` },
-  { name: "Roger Kim", role: "Director", title: "Managing Director, Societe Generale", bio: "Managing Director and head of Structuring and Solutions for fixed income division at Societe Generale. Prior roles at Deutsche Bank Korea and Morgan Stanley Korea. Stanford University graduate.", image: `${BASE}/images/team/roger-kim.jpg` },
-  { name: "James Liao", role: "Director", title: "President, Salem Consultants Inc.", bio: "President of Salem Consultants Inc. Teacher at Chang Gung University in Taiwan. Director and former Board President of Flushing Town Hall.", image: `${BASE}/images/team/james-liao.jpg` },
-  { name: "Kevin Vuong", role: "Director", title: "SVP Global Store & Workplace Experience, Capri Holdings", bio: "Licensed architect and SVP of Global Store & Workplace Experience for Capri Holdings (Versace, Jimmy Choo, Michael Kors). Architecture degrees from UC Berkeley.", image: `${BASE}/images/team/kevin-vuong.jpg` },
-  { name: "Yuko Yates", role: "Director", title: "SVP Business Support Executive, Bank of America Legal", bio: "Senior Vice President at Bank of America Legal Department leading business strategy initiatives. Co-chair of Bank of America Asian Leadership Network New York.", image: `${BASE}/images/team/yuko-yates.jpg` },
-  { name: "Jennifer Young", role: "Director", title: "Senior Principal, Google Cloud", bio: "Senior Principal at Google Cloud on Global Strategic Missions & Partnerships. Previously led M&A at Soci\u00e9t\u00e9 BIC and worked in investment banking at Evercore.", image: `${BASE}/images/team/jennifer-young.jpg` },
+  { name: "James Cheng", role: "Vice-Chair", title: "Global Senior Director of DEI, Zimmer Biomet", bio: "James Cheng is the Global Senior Director and Head of Diversity, Equity, and Inclusion of Zimmer Biomet. He is responsible for the strategy, development, and growth of the Diversity, Equity, and Inclusion at Zimmer Biomet and to drive positive impact for the 20,000+ team members in 25+ countries that services 100+ countries across the globe. Prior to Zimmer Biomet, was the Global Director of Inclusion & Diversity and Talent Acquisition at Gilead Sciences Inc. and formally HR Director of Global Inclusion & Diversity COE Business Resource Groups and Business Development at Cargill Inc.\n\nHe serves on the Board of Directors for The Asian American Dream and NAAAP New York. He also serves as an advisor to the Board of Directors for NAAAP Minnesota. The recipient of the Top Healthcare Diversity Officers in 2022 and Top 100 Diversity Officers in 2021 by the National Diversity Council, Outstanding 50 Asian Americans in Business Awardee by the Asian American Business Development Center in 2018.", image: `${BASE}/images/team/james-cheng.jpg` },
+  { name: "Carteneil Cheung", role: "Director", title: "Associate General Counsel, McKinsey & Company", bio: "Carteneil is a corporate attorney and strategic advisor with a global career spanning senior in-house leadership and elite international law firms. Carteneil currently serves as Associate General Counsel at McKinsey & Company, advising senior leadership on complex strategic investments and bespoke alternative fee arrangements across North America, EMEA, and APAC.\n\nEarlier in the career, Carteneil practiced at top-tier global law firms including Paul, Weiss and Sidley Austin, representing private equity firms, multinational corporations, and financial institutions on sophisticated mergers and acquisitions and other strategic investments. Carteneil also played a foundational role in establishing a major global law firm\u2019s Asia-Pacific presence.\n\nBorn and raised in a multicultural environment and professionally active across multiple continents, Carteneil brings a global perspective to Asian American Dream\u2019s mission of expanding opportunity and equity for Asian American communities. Carteneil is committed to advancing strong governance, sustainable growth, and inclusive leadership in support of AAD\u2019s work.", image: `${BASE}/images/team/carteneil-cheung.jpg` },
+  { name: "Jocelyn Cruz-Alfalla", role: "Director", title: "Dir. of Community & Schools Tennis, USTA Eastern", bio: "Jocelyn Cruz-Alfalla is the Director, Community and Schools Tennis at USTA Eastern where she manages grants focused on grassroots programs for tennis. Prior to joining the USTA Eastern, Jocelyn worked for the Marymount School as the Assistant Athletic Director. She is a professionally trained consultant, educator and manager with over 18 years of experience in organizational development having worked in the educational institutions, health care and nonprofit sectors.\n\nJocelyn currently serves as a volunteer for Asian American Pacific Islander Tennis Association. She earned a B.S from Hunter College and an M.P.A. from Baruch CUNY School of Public Affairs. Jocelyn is also a passionate supporter of her local community and has served on the board of trustees at the Hamilton Park Conservancy to help with the capital needs of the park.", image: `${BASE}/images/team/jocelyn-cruz-alfalla.png` },
+  { name: "Kevin Ha", role: "Founder & Executive Director", title: "2024-2025 Obama USA Leader", bio: "Kevin Ha is the Founder and Executive Director of Asian American Dream (AAD), a New York-based nonprofit that provides mentorship, professional development, and career advancement opportunities for underserved AAPI undergraduates.\n\nSince founding AAD in 2021, Kevin has scaled the organization to serve 200 mentees and 200 mentors annually. Most recently, he was selected as a 2024-2025 Obama USA Leader by the Obama Foundation and a 2024 Fellow by The EGF Accelerator, respectively.\n\nPrior to AAD, Kevin worked in the Markets Group at the Federal Reserve Bank of New York. Kevin is a proud Cate School (\u201917) and Skidmore College (\u201921) alumnus.", image: `${BASE}/images/team/kevin-ha.jpg` },
+  { name: "Jason Huang", role: "Treasurer", title: "Financial Advisor, Oppenheimer Co., CFP\u00ae, ChFC\u00ae, WMCP\u00ae", bio: "Jason Huang is a Financial Advisor at Oppenheimer Co. Inc., where he helps individuals and families achieve financial security through personalized guidance in insurance, investment strategies, and retirement planning. Prior to his current role, Jason served as a Financial Representative at Northwestern Mutual and a Senior Associate at Premier Financial Alliance. His early career includes technical positions at Henry Schein and Verizon, reflecting a diverse professional background.\n\nJason is a CERTIFIED FINANCIAL PLANNER\u00ae professional since 2024. He has also obtained the Chartered Financial Consultant\u00ae (ChFC\u00ae) designation in 2024 and the Wealth Management Certified Professional\u00ae (WMCP\u00ae) designation in 2022, both through The American College of Financial Services. Additionally, he holds Series 7 and 66 FINRA licenses.\n\nJason earned his B.A. in International Relations, Global Political Economy from the State University of New York at Geneseo. Committed to community service, Jason is an Eagle Scout Award recipient and is still active in his local Scouting Council. He has been recognized with the President\u2019s Volunteer Service Award and a Certificate of Special Congressional Recognition for over 400+ hours of service.\n\nAs Board Treasurer of AAD, he leverages his financial expertise to support the organization\u2019s mission of empowering underserved Asian American and Pacific Islander undergraduates. In his personal life, Jason enjoys hiking and camping in nature during the spring and alpine sports in winter. He is passionate about environmental issues. Jason currently resides with his wife and son in Stony Brook, NY.", image: `${BASE}/images/team/jason-huang.jpg` },
+  { name: "Roger Kim", role: "Director", title: "Managing Director, Societe Generale", bio: "Roger is currently a managing director and head of Structuring and Solutions for the fixed income division of Societe Generale\u2019s global markets platform in the Americas. Prior to his current position, Roger held structuring and investment professional positions in Asia for Societe Generale Hong Kong, Deutsche Bank Korea and Morgan Stanley Korea. Roger is a graduate of Stanford University and served as a Lieutenant in the South Korean Air Force.", image: `${BASE}/images/team/roger-kim.jpg` },
+  { name: "James Liao", role: "Director", title: "President, Salem Consultants Inc.", bio: "James S. J. Liao is president of Salem Consultants Inc., a management consulting firm performing financial and business advisory services. In Taiwan, he is a teacher at Chang Gung University of Science and Technology, teaching conversational English to staff and students. He was an adjunct lecturer at Skidmore College, lecturing on international business, investments, and finance and banking.\n\nHe serves as a Director, former Board President and former Treasurer of Flushing Town Hall, Board Secretary and Co-Chair of the Finance Committee for Villa Maria Academy, and former Director of Asian CineVision.\n\nHe was a co-founder of a comedy club in Flushing, Queens, NY \u2013 Laff Lab. Previously, he was V.P. and general manager of Crossings TV for its stations in NYC and Chicago. Crossings TV nationwide fulfills the entertainment and information needs of Asian American communities providing programming in Chinese, South Asian, Filipino, and Russian.\n\nHe served as a senior executive at two non-profit organizations \u2013 The Municipal Art Society of New York and The Jockey Club and, was President of Christiansen Capital Advisors LLC. He also served as a Director of Fiduciary and Financial Auditing at Siemens Corp., manager of financial and litigation services at Touche Ross (now Deloitte Consulting), and vice president of Asia-Pacific and Europe for Manufacturers Hanover Leasing Corp. (now JP Morgan).\n\nLiao earned his M.B.A. in finance from NYU and his bachelor\u2019s degree in finance (Magna Cum Laude) from Fordham University.", image: `${BASE}/images/team/james-liao.jpg` },
+  { name: "Jack Tran", role: "Chair", title: "Strategy & Product Management, American Express", bio: "Jack Tran is a distinguished fintech professional with extensive expertise in product management, strategic development, and financial services. He currently holds a key role in Strategy and Product Management at American Express, where he is instrumental in driving product innovation, expanding B2B solutions, and leading cross-functional initiatives that enhance business growth and operational efficiency.\n\nPrior to his tenure at American Express, Jack held strategic positions at CVS Health Corporation, specializing in corporate strategy and commercialization. Before that, he was based in the San Francisco Bay Area, where he worked at Ernst & Young and PricewaterhouseCoopers, focusing on the financial technology sector and advising clients.\n\nBeyond his professional career, Jack is deeply committed to entrepreneurship, mentorship, and community engagement. He serves on the board of ACE NextGen New York and previously held a leadership role as a Program Coordinator for The Asian American Dream (AAD). Additionally, he is an active member of American Express\u2019s Asian American and Pacific Islander (AAPI) Employee Resource Group, contributing to its Philanthropy Committee.", image: `${BASE}/images/team/jack-tran.jpg` },
+  { name: "Kevin Vuong", role: "Director", title: "SVP Global Store & Workplace Experience, Capri Holdings", bio: "Born in Vietnam and raised in California, Kevin earned dual Bachelor of Arts degrees in Architecture and Italian Literature from UC Berkeley. He later moved to New York City, where he joined global design giant Gensler. During his time there, Kevin became a licensed architect and discovered his passion for retail design, working with clients such as Gucci, Burberry, Hugo Boss, and Bottega Veneta.\n\nAfter Gensler, Kevin transitioned to the client side, joining the Architecture team at Coach. Three years later, he was recruited by Michael Kors to build and lead their in-house Store Design team. When Kevin joined the company in 2007, there were just 22 stores worldwide. Under his leadership, the team has since opened nearly 1,000 stores globally and developed multiple retail environments for the brand.\n\nToday, Kevin is the SVP of Global Store & Workplace Experience for all three Capri Holdings brands\u2014Versace, Jimmy Choo, and Michael Kors\u2014and resides in New York City.", image: `${BASE}/images/team/kevin-vuong.jpg` },
+  { name: "Yuko Yates", role: "Director", title: "SVP Business Support Executive, Bank of America Legal", bio: "Yuko Yates leads business strategy and initiatives for the Legal Department at Bank of America. In her role, she is responsible for the development and execution of strategic initiatives, including operational excellence, technology initiatives, and process and data enablement across the department.\n\nYuko joined the bank in Singapore in 2010 and relocated to New York in June 2020.\n\nYuko has been actively engaged in driving diversity & inclusion efforts in the organization. She currently serves as the co-chair for the Bank of America Asian Leadership Network New York chapter.\n\nYuko is originally from Japan and holds a Bachelor of Law degree from Keio University in Japan. She has been in the Business Enablement and Business Control roles in the investment banks throughout her career, working in Tokyo, New York, London and Singapore.", image: `${BASE}/images/team/yuko-yates.jpg` },
+  { name: "Jennifer Young", role: "Director", title: "Senior Principal, Google Cloud", bio: "Jennifer Young is a Senior Principal on the Global Strategic Missions & Partnerships team within Google Cloud focused on scaling growth and generative AI initiatives. She previously led Global Strategic Partnerships efforts within Google Devices & Services.\n\nPrior to Google, Jennifer led Global Mergers & Acquisitions at Soci\u00e9t\u00e9 BIC. The team was tasked with growing the BIC platform through a blend of global corporate M&A, strategic partnerships and venture capital. Before BIC, Jennifer worked within Evercore\u2019s Investment Banking Mergers & Acquisitions group in New York where she provided buy-side / sell-side advisory and debt financing services to clients in the retail and consumer and consumer tech industries. Prior to business school, Jennifer worked in public capital markets within J.P. Morgan Asset Management and traded foreign currency at FXCM / Deutsche Bank FX.\n\nJennifer received her MBA from the University of Chicago Booth School of Business with concentrations in Finance, Accounting and Managerial and Organizational Behavior and a B.S. in Business Administration with concentrations in Marketing and Finance from Boston University. She received a Forte Foundation merit-based scholarship upon admission to Chicago Booth and was a member of the Dean\u2019s Student Admissions Council. Jennifer is also a graduate of Stuyvesant High School, a college preparatory STEM focused high school and one of nine specialized charter schools in New York City.", image: `${BASE}/images/team/jennifer-young.jpg` },
 ];
 
 const advisoryMembers = [
-  { name: "Alex Chester-Iwata", title: "Founder, Mixed Asian Media", bio: "Award-winning performer, writer, and cultural advocate with 35+ years in entertainment. Founder of Mixed Asian Media and Mixed Asian Day\u2122.", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
-  { name: "Timothy Fong", title: "Senior Systems Specialist, Warburg Pincus", bio: "Senior Systems Specialist at Warburg Pincus with 9+ years implementing enterprise systems. Focused on mentorship and creating pathways for early-career professionals.", image: `${BASE}/images/team/timothy-fong.jpg` },
-  { name: "Esther Kim", title: "Program Manager, Microsoft Azure", bio: "Program Manager at Microsoft in Azure Customer Reliability Engineering. Chair of Microsoft Asians of New York.", image: `${BASE}/images/team/esther-kim.jpg` },
-  { name: "Jerry Lee", title: "Co-Founder, Wonsulting", bio: "Co-Founder of Wonsulting and ex-Senior Strategy & Operations Manager at Google. 3M+ followers across social platforms.", image: `${BASE}/images/team/jerry-lee.jpg` },
-  { name: "Dawn Lucovich", title: "Founding Faculty, University of Nagano", bio: "Founding faculty member at University of Nagano. Previously taught at Columbia University and NYU. Specializes in change management and organizational leadership.", image: `${BASE}/images/team/dawn-lucovich.jpg` },
-  { name: "Rhea Mahajan", title: "CPA, SASB FSA Level II", bio: "CPA and SASB FSA Level II certified professional with expertise in development, social impact, and consulting. Drove meaningful change as Development Account Manager at APIA Scholars and Social Innovation Officer at Smart City Expo USA. At APCO Impact, advised foundations and corporations on financial inclusion, ESG, philanthropy, and DEI initiatives. Also a skilled media host with over 4 million views across South Asian platforms.", image: `${BASE}/images/team/rhea-mahajan.jpg` },
-  { name: "Alicia Underwood", title: "Founder, TwentyThree LLC", bio: "Founder of TwentyThree, LLC, a digital communications and influencer marketing agency. 15 years of experience in social media strategy and brand storytelling. Leads strategy, creative, and execution across social media, paid media, and influencer marketing. Also building The Social Box, a software platform for influencer marketing workflows.", image: `${BASE}/images/team/alicia-underwood.jpg` },
-  { name: "Christopher Won", title: "Educator & Community Advocate", bio: "Educator, advocate, and designer with over fifteen years of experience in community development, creative learning, and organizational management.", image: `${BASE}/images/team/christopher-won.jpeg` },
-  { name: "Douglas York", title: "Chair, Advisory Council", bio: "Retiree with over 38 years of utility industry experience at National Grid. Led teams in IT, Finance, Operations Performance, and Sales. Former Chairperson for the Asian Leadership Association ERG. Currently on the Board of Directors for NAAAP New York and planning committee for the NAAAP STEP Mentorship program. Former AAD Board member for 3 years, now Chairperson for the Advisory Council.", image: `${BASE}/images/team/douglas-york.jpg` },
+  { name: "Alex Chester-Iwata", title: "Founder, Mixed Asian Media", bio: "Alex Chester-Iwata is an award-winning performer, writer, and cultural advocate with over 35 years in the entertainment industry. A former child actor and member of Diddy\u2019s girl group Dream, she has appeared on Broadway and across major networks, including ABC, NBC, and PBS. As a mixed race Japanese and Jewish American, Alex channeled her experiences into founding Mixed Asian Media\u2014a platform dedicated to uplifting mixed AAPINH voices\u2014which has been recognized by Nielsen and included in academic texts.\n\nShe is also the founder of Mixed Asian Day\u2122, a national movement celebrating mixed Asian identity, and has spoken at events hosted by TikTok, Amazon, Tribeca Festival, and more. Alex serves on multiple national boards, including ACE NextGen, American Advertising Federation LA, New York Asian Film Festival, Philadelphia Asian American Film Foundation, and The Lunar Collective. She was also honored with the National Association of Asian Americans\u2019 Inspire Award in 2025.", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
+  { name: "Timothy Fong", title: "Senior Systems Specialist, Warburg Pincus", bio: "Tim is a seasoned business technologist with over nine years of experience in implementing and managing enterprise systems. He is currently a senior systems specialist at Warburg Pincus, a leading global private equity firm, where he partners with cross-functional teams to enhance operational efficiency through practical, technology-driven solutions.\n\nAs a proud first-generation Asian American, Tim is deeply committed to creating long-term pathways for success within the community. He believes in the transformative power of mentorship and is focused on building a sustainable, strategic support network for early-career Asian professionals from underserved socioeconomic backgrounds\u2014empowering the next generation to thrive in the workforce.", image: `${BASE}/images/team/timothy-fong.jpg` },
+  { name: "Esther Kim", title: "Program Manager, Microsoft Azure", bio: "A Florida native and proud University of Florida alum, Esther studied Chemical Engineering and earned a Piano Performance certificate. She is currently a Program Manager at Microsoft within the Azure Customer Reliability Engineering organization, partnering with customers on outage escalations and driving operational excellence.\n\nOutside of her core role, she serves as the Chair for Microsoft Asians of New York, where she is passionate about fostering community and celebrating cultural heritage, events, and traditions across the region.", image: `${BASE}/images/team/esther-kim.jpg` },
+  { name: "Jerry Lee", title: "Co-Founder, Wonsulting", bio: "Jerry is the Co-Founder of Wonsulting and an ex-Senior Strategy & Operations Manager at Google & used to lead Product Strategy at Lucid. After graduating college, Jerry was hired as the youngest analyst in his organization by being promoted multiple times in his first 2 years. After he left Google, he was the youngest person to lead a strategy team at Lucid.\n\nJerry started Wonsulting to help millions around the world land their dream jobs. Through his work, he\u2019s spoken at 250+ events & amassed 3M+ followers across LinkedIn, TikTok & Instagram and has reached 1B+ jobseekers globally. In addition, his work has been featured on Forbes, Newsweek, Business Insider, Yahoo! News, LinkedIn & Forbes 30 under 30.", image: `${BASE}/images/team/jerry-lee.jpg` },
+  { name: "Dawn Lucovich", title: "Founding Faculty, University of Nagano", bio: "Dawn Lucovich was one of the founding faculty members at The University of Nagano in Nagano, Japan. She previously worked at a private university in Tokyo, as well as Columbia University and New York University. She specializes in change management, and organizational leadership and learning. She is passionate about AAD\u2019s mission of supporting and mentoring Asian American university students.\n\nShe has lived and worked in the United States, England, South Korea, and Japan. She currently sits on the Board of Directors for the Jersey City Arts Council, and serves on the Teachers College Alumni Association and as Co-Chair of the George Washington University Asian Pacific Islander Network. She also belongs to the New York Junior League and Toastmasters International.", image: `${BASE}/images/team/dawn-lucovich.jpg` },
+  { name: "Rhea Mahajan", title: "CPA, SASB FSA Level II", bio: "Rhea is a CPA and SASB FSA Level II certified professional with expertise in development, social impact, and consulting. She has driven meaningful change through roles such as Development Account Manager at APIA Scholars, where she worked on a multi-million-dollar fundraising plan, and Social Innovation and Operations Officer at Smart City Expo USA, leading efforts to advance equitable and sustainable urban development.\n\nAt APCO Impact, Rhea advised foundations and corporations on financial inclusion, ESG, philanthropy, and DEI initiatives while co-leading the firm\u2019s ANHPI ERG to amplify advocacy and awareness. Her career began in forensic and litigation consulting, partnering with federal agencies and supporting high-stakes investigations.\n\nBeyond her professional work, Rhea is a skilled media host with over 4 million views across South Asian and personal platforms. Fluent in English and Hindi, she is passionate about empowering the ANHPI community and expanding career opportunities for underserved AAPI students.", image: `${BASE}/images/team/rhea-mahajan.jpg` },
+  { name: "Alicia Underwood", title: "Founder, TwentyThree LLC", bio: "Alicia Underwood is the founder of TwentyThree, LLC, a digital communications and influencer marketing agency based in St. Louis. With 15 years of experience in social media strategy and brand storytelling, she partners with enthusiastic, values-driven brands to help them stand out in a crowded digital landscape.\n\nThrough TwentyThree, Alicia leads strategy, creative, and execution across social media, paid media, and influencer marketing. She works with clients across healthcare, hospitality, and luxury, and is known for blending data, creativity, and culture into campaigns that move people and deliver results.\n\nAlongside her client work, Alicia is building The Social Box, a software platform designed to simplify influencer marketing workflows. She also teaches and speaks on the business of social media and influencer marketing, including at MDMC, one of the Midwest\u2019s largest digital conferences. Additionally, she serves on the board of Social Media Club St. Louis and previously served as President of the Lafayette Square Business Association.\n\nAlicia is passionate about storytelling, community building, and helping brands grow with clarity and confidence. She lives in Webster Groves with her husband, two boys, and two cats. She also enjoys Pilates, reading, and cooking in her free time.", image: `${BASE}/images/team/alicia-underwood.jpg` },
 ];
 
 const aadreamTeam = [
-  { name: "Mohina Abdullaeva", role: "Director of Partnerships", bio: "Junior at Baruch College, CUNY, pursuing a degree in Computer Information Systems with a Minor in Economics. Background in the business industry through startup involvement and volunteering at cultural non-profits. Originally from Central Asia.", image: `${BASE}/images/team/mohina-abdullaeva.jpg` },
-  { name: "Jaclyn Eng", role: "Program Coordinator", bio: "Native New Yorker working in management consulting. Bachelor's degree in Psychology and master's in Data Analytics and Applied Social Research from Queens College, CUNY. Previous experience supporting dual-enrollment programs and college access initiatives.", image: `${BASE}/images/team/jaclyn-eng.jpg` },
-  { name: "Kevin Ha", role: "Executive Director", bio: "Founder and Executive Director of Asian American Dream. Selected as 2024-2025 Obama USA Leader and 2024 Fellow by The EGF Accelerator. Previously worked in Markets Group at Federal Reserve Bank of New York.", image: `${BASE}/images/team/kevin-ha.jpg` },
-  { name: "Josh Minsup Kim", role: "Program Coordinator", bio: "In GTM & Product at MindStudio, a No/Lo-Code AI Agent platform. Previously Data Insights & Analytics Consultant at Kantar. A proud Third Culture Kid with roots in both Seoul and New York, passionate about empowering Asian American professionals.", image: `${BASE}/images/team/josh-minsup-kim.png` },
-  { name: "Perry Leong", role: "Co-Director of Community", bio: "Senior Product Marketing Manager at Microsoft working on Azure cloud infrastructure. Combination of software engineering and technical marketing experience. Born and raised in the SF Bay Area, living in Manhattan since 2023.", image: `${BASE}/images/team/perry-leong.jpg` },
-  { name: "Ed Shen", role: "Program Coordinator", bio: "Portfolio manager at BlackRock, managing multi-asset portfolios. Also moonlights as a DJ and events organizer, coordinating programming for plur.nyc and Subtle Asian Mates.", image: `${BASE}/images/team/ed-shen.jpg` },
-  { name: "Shirley Tan", role: "Program Coordinator", bio: "Born in China, grew up in North Carolina. Business Analyst at McKinsey & Company spanning across industries with a focus on Consumer & Retail. Led connectivity across New York and North America for Asians at McKinsey.", image: `${BASE}/images/team/shirley-tan.jpg` },
-  { name: "Sarah Yoo", role: "Co-Director of Community", bio: "Strategy & Business Operations Associate at LinkedIn. Previously part of the Strategy Practice at EY-Parthenon. With roots in both Boston and Seoul, passionate about building community for Asian American professionals in New York.", image: `${BASE}/images/team/sarah-yoo.jpg` },
+  { name: "Mohina Abdullaeva", role: "Director of Partnerships", bio: "Mohina is a junior at Baruch College, CUNY, where she is pursuing a degree in Computer Information Systems with a Minor in Economics. With a background in the business industry gained through her involvement with StartUps and volunteering at cultural non-profits, she brings a unique blend of skills. Originally from Central Asia, specifically Uzbekistan, Mohina ventured to the U.S. to pursue her educational endeavors. Her experiences have cultivated a deep passion for both technological innovation and the preservation of cultural heritage.", image: `${BASE}/images/team/mohina-abdullaeva.jpg` },
+  { name: "Maxwell Chan", role: "AAD Ambassador", bio: "Born and raised in New York City, Maxwell Chan is a Business Administration and Computer Science student at Binghamton University. Through his consulting work, he has worked with organizations to automate manual processes, improve how they use data, and build tools that support better decision-making. His experience spans both technical and business roles, including data management and business development at Diversolar and Sullivan & Cromwell LLP. On campus, Maxwell is the Co-Founder of the Asian Business Collective, where he focuses on creating opportunities and building community for Asian American students. Outside of school and work, he enjoys hiking, biking, camping, and skiing, interests that go back to his scouting days.", image: `${BASE}/images/team/maxwell-chan.jpeg` },
+  { name: "Jaclyn Eng", role: "Co-Program Director", bio: "Jaclyn is a native New Yorker, who currently works in management consulting, helping clients meet their needs. She has a bachelor\u2019s degree in Psychology and a master\u2019s degree in Data Analytics and Applied Social Research from Queens College, CUNY. She has previous work experience in education, supporting a dual-enrollment program and managing a college awareness program under the NYC Mayor\u2019s College Access for All initiative. Through these experiences, she has witnessed the transformative power of education firsthand and is passionate about creating opportunities for students to thrive academically, personally, and professionally.", image: `${BASE}/images/team/jaclyn-eng.jpg` },
+  { name: "Daron Fong", role: "Community Manager", bio: "Daron is a Principal Engineering Project Manager at Fresenius Medical Care, with a background in chemical engineering. He\u2019s born and raised in the SF Bay Area and graduated as a Regents Scholar from UC Davis.\n\nOutside of his day job, Daron enjoys bringing people together, playing basketball, practicing hip hop dance, and going on fun travel adventures (25+ countries, climbed Mt Kilimanjaro last year and survived altitude sickness). He\u2019s looking to make an impact with the AAD community by bringing more fun events to program members!", image: `${BASE}/images/team/daron-fong.jpg` },
+  { name: "Kevin Ha", role: "Founder & Executive Director", bio: "Kevin Ha is the Founder and Executive Director of Asian American Dream (AAD), a New York-based nonprofit that provides mentorship, professional development, and career advancement opportunities for underserved AAPI undergraduates.\n\nSince founding AAD in 2021, Kevin has scaled the organization to serve 200 mentees and 200 mentors annually. Most recently, he was selected as a 2024-2025 Obama USA Leader by the Obama Foundation and a 2024 Fellow by The EGF Accelerator, respectively.\n\nPrior to AAD, Kevin worked in the Markets Group at the Federal Reserve Bank of New York. Kevin is a proud Cate School (\u201917) and Skidmore College (\u201921) alumnus.", image: `${BASE}/images/team/kevin-ha.jpg` },
+  { name: "Yi Huang", role: "Director of Student Engagement", bio: "Yi Huang is a sophomore at Cornell University in the Dyson School where she is pursuing a degree in Applied Economics and Management with a concentration in Entrepreneurship. She is a 2026 Girls Who Invest Summer Intensive Program Scholar and a 2026 Investment Associate Intern at Lord Abbett. She was born and raised in Brooklyn, NY and enjoys watching Real Estate shows and playing strategic games in her free time. As a first-generation student, mentorship within and outside of AAD has had a big impact on her personal, academic, and professional growth, making her passionate about creating open spaces for people to pursue their dreams.", image: `${BASE}/images/team/yi-huang.jpg` },
+  { name: "Joseph Kao", role: "Community Manager", bio: "Bio coming soon.", image: `${BASE}/images/team/placeholder.jpg` },
+  { name: "Josh Minsup Kim", role: "Co-Program Director", bio: "Josh is in GTM & Product at MindStudio, a No/Lo-Code AI Agent developing platform. Prior to diving into the AI Startup space, Josh was a Data Insights & Analytics Consultant at Kantar, leveraging digital search and social data to guide product, marketing, and brand strategy. He\u2019s also dabbled in venture capital at Syntax Capital (formerly Aves Lair) and TZ Ventures where he sourced startups as well as support the incubation of South Korea\u2019s first B2B Buy Now Pay Later service.\n\nA proud Third Culture Kid (TCK) with roots in both Seoul and New York, Josh is passionate about empowering Asian American professionals with the insights and tools they need to pursue meaningful, purpose-driven careers. Outside of work, he\u2019s an avid volleyball player, enjoys food crawls, and has recently taken up photography.", image: `${BASE}/images/team/josh-minsup-kim.png` },
+  { name: "Perry Leong", role: "Director of Community", bio: "I\u2019m currently a Sr. Product Marketing Manager at Microsoft working on Azure cloud infrastructure, where I create and manage marketing strategy for Azure Virtual Machines and various IaaS products. I\u2019ve been lucky enough to have a variety of roles from software engineering to technical marketing that have allowed me to leverage a unique combination of technical and interpersonal skills. I love bringing people together and am driven by a desire to make the world more connected. I was born and raised in the SF Bay Area and have been living in Manhattan since 2023. In my free time, I love to travel (over 45 countries!), host social events, play basketball, and take pictures.", image: `${BASE}/images/team/perry-leong.jpg` },
+  { name: "Anita Lin", role: "AAD Ambassador", bio: "Anita is a junior at Columbia University studying Cognitive Science and Sustainable Development. She is from New York, the Outer Banks, and Fuzhou, China. Currently, she is a Growth Program Management intern at NBCUniversal Peacock and on the data team at Columbia Technology Ventures. In her free time, you can find her trying new NYC restaurants to rank on Beli!", image: `${BASE}/images/team/anita-lin.jpg` },
+  { name: "Matthew Noh", role: "Operations Manager", bio: "Matt is a Baruch College alum, where he earned a degree in Finance with a minor in Computer Information Systems. He currently serves as a Client Associate at Heritage Strategies, where he supports client relationships and financial advisory efforts, gaining hands-on experience in estate planning and client service.\n\nHe will be joining the Dormitory Authority of the State of New York (DASNY) as a Public Finance Fellow, where he will further develop his expertise in municipal finance, capital markets, and public-sector funding. He is particularly interested in how public finance can be used to support infrastructure, education, and community-driven development projects.\n\nAs an Asian American, Matthew is passionate about expanding access to mentorship, professional development, and career pathways for underserved students. He is committed to helping bridge gaps in opportunity and empowering the next generation of professionals.", image: `${BASE}/images/team/matthew-noh.jpg` },
+  { name: "Lara Pena", role: "Co-Director of Mentor Experience", bio: "Bio coming soon.", image: `${BASE}/images/team/placeholder.jpg` },
+  { name: "Leon Pham", role: "Co-Director of Mentor Experience", bio: "Leon\u2019s curious and untraditional journey as an immigrant from Vietnam and a community college transfer student led him to exploring the intersection of psychology, business, and technology. Now, whether he is building AI systems, re-imagining brands, or growing a mental health podcast, everything he does in his personal and professional life is anchored by unwavering purpose, grit, and action.\n\nThat same drive to turn ambition into reality is what drew him to AAD, where he knew he wanted to join a community that doesn\u2019t just dream big, but acts together.", image: `${BASE}/images/team/leon-pham.jpg` },
+  { name: "Ed Shen", role: "Community Manager", bio: "Ed Shen is a portfolio manager at BlackRock, where he helps manage multi-asset portfolios in a scalable manner.\n\nOutside of his day job, Ed moonlights as a DJ and events organizer, coordinating a variety of programming for both plur.nyc and Subtle Asian Mates while dropping bass beats as JUNTING.\n\nIn his free time, Ed is an avid snowboarder/skateboarder, enjoys reading psychology/philosophy books, and practices needlework/pouring latte art.", image: `${BASE}/images/team/ed-shen.jpg` },
+  { name: "Ayan Sivaram", role: "AAD Ambassador", bio: "Ayan is a junior at NYU, where he studies Finance, Statistics, and Philosophy. He spent a year on exchange at University College London. He will be joining J.P. Morgan this summer on the Structured Equity Financing team. Before J.P. Morgan, Ayan worked for One Madison Group and conducted research in LLM fine-tuning and econometrics at NYU and Harvard.", image: `${BASE}/images/team/ayan-sivaram.png` },
+  { name: "Maximilian Wang", role: "Operations Manager", bio: "Maximilian is a graduate from Rutgers University studying Supply Chain Management and Finance. Through various internships and his current role in Procurement, he hopes to provide expertise in business operations and management.\n\nAs an Eagle Scout within the Boy Scouts of America, he hopes to continue his commitment to serving and supporting the community.", image: `${BASE}/images/team/maximilian-wang.jpg` },
+  { name: "Hanson Wen", role: "AAD Ambassador", bio: "Hanson is a Brooklyn-native currently studying Finance and Economics at NYU Stern. Being from NYC, he was exposed to all walks of life and started his journey of volunteering early on. He has been involved with volunteering with organizations like Asian Americans for Equality (AAFE) and Apex For Youth, and is excited to help lead and grow the efforts at AAD.", image: `${BASE}/images/team/hanson-wen.jpg` },
+  { name: "Deven Williams", role: "AAD Ambassador", bio: "Deven Williams is a sophomore at Macaulay Honors College at Baruch College, CUNY, where he is pursuing a degree in Finance with a minor in Interdisciplinary NYC Studies. Growing up around his family\u2019s construction business, Deven received early exposure to entrepreneurship, finance, and real estate. These experiences shaped his professional passions, where he now looks forward to joining Centerbridge this summer, and Barclays next summer. Outside of work, Deven enjoys practicing archery, solving puzzles, journaling, and spending time with friends and family.", image: `${BASE}/images/team/deven-williams.jpg` },
+  { name: "Keith Wong", role: "Director of Marketing", bio: "Keith is the Director of Marketing for AAD. Currently working in the advertising tech space as a Platform Solutions Manager, previously being on the agency side. Fun fact: he used to be in the competitive dance scene!", image: `${BASE}/images/team/keith-wong.jpg` },
+  { name: "Sarah Yoo", role: "Director of Operations", bio: "Sarah is a Strategy & Business Operations Associate at LinkedIn, where she helps shape long-term product strategies for key growth initiatives and oversees performance and forecasting across B2B and B2C product lines. Before joining LinkedIn, Sarah was part of the Strategy Practice at EY-Parthenon, where she developed go-to-market strategies for clients in the Consumer and Technology sectors and was a pillar lead for the Pan-Asian Professional Network.\n\nWith roots in both Boston and Seoul, Sarah is passionate about building a diverse, tight-knit community for current and aspiring Asian-American professionals in the New York area. In her free time, she enjoys dabbling in arts and crafts, playing golf, and exploring NYC cafes in search of the best matcha latte!", image: `${BASE}/images/team/sarah-yoo.jpg` },
+  { name: "Jeffrey Zhang", role: "Community Manager", bio: "Jeffrey is a Product Strategy Associate at Fanatics Collectibles, working on the frontier of all things trading cards. Prior to Fanatics, Jeffrey spent 2 years at McKinsey & Company, where he specialized in growth strategy, marketing, and sales.\n\nWhen he\u2019s not nerding out about trading cards, Jeffrey loves to play basketball, watch his Houston Rockets, and play board games with his friends \u2014 Catan, Terraforming Mars, and Mahjong are some of his favorites!\n\nPrior to moving to New York, Jeffrey spent 6 years in the Bay Area, studying Business Administration at UC Berkeley and living in San Francisco. Jeffrey is a Los Angeles native, growing up in Rancho Palos Verdes with his 4 siblings.", image: `${BASE}/images/team/jeffrey-zhang.jpg` },
 ];
 
 /* ─── Team Member Card with enhanced hover ─── */
@@ -1212,7 +1284,6 @@ function TeamMemberCard({
   selectedPerson,
   togglePerson,
   personKey,
-  ringColor = "bright-turquoise",
   size = "md",
   showRole = true,
 }: {
@@ -1220,14 +1291,12 @@ function TeamMemberCard({
   selectedPerson: string | null;
   togglePerson: (name: string) => void;
   personKey: string;
-  ringColor?: string;
   size?: "sm" | "md";
   showRole?: boolean;
 }) {
   const sizeClasses = size === "md"
     ? "w-24 h-24 md:w-28 md:h-28"
     : "w-20 h-20 md:w-24 md:h-24";
-  const ringWidth = size === "md" ? "ring-3" : "ring-2";
 
   return (
     <motion.div
@@ -1240,13 +1309,13 @@ function TeamMemberCard({
         className={`flex flex-col items-center group ${member.bio ? "cursor-pointer" : "cursor-default"}`}
       >
         <motion.div
-          className={`${sizeClasses} rounded-full overflow-hidden shadow-lg ${ringWidth} ring-${ringColor}/20 relative`}
+          className={`${sizeClasses} rounded-full overflow-hidden shadow-lg ring-3 ring-deep-teal/30 relative`}
           whileHover={{
             scale: 1.08,
-            boxShadow: "0 8px 30px rgba(26,107,122,0.2)",
+            boxShadow: "0 8px 30px rgba(26,107,122,0.25)",
           }}
           animate={selectedPerson === personKey ? {
-            boxShadow: "0 0 0 3px rgba(79,209,199,0.5)",
+            boxShadow: "0 0 0 4px rgba(26,107,122,0.5)",
           } : {}}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
@@ -1272,30 +1341,113 @@ function TeamMemberCard({
         {!showRole && <p className="font-inter text-xs text-dark-gray">Advisory</p>}
         {member.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{member.title}</p>}
       </button>
-      <AnimatePresence>
-        {selectedPerson === personKey && member.bio && (
-          <motion.div
-            initial={{ opacity: 0, height: 0, scale: 0.95 }}
-            animate={{ opacity: 1, height: "auto", scale: 1 }}
-            exit={{ opacity: 0, height: 0, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden"
-          >
-            <p className="font-inter text-xs text-dark-gray leading-relaxed mt-2 text-center max-w-[200px] bg-off-white rounded-xl px-3 py-2 border border-light-gray">
-              {member.bio}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
+  );
+}
+
+/* ─── Bio Modal Popup ─── */
+function BioModal({
+  member,
+  onClose,
+}: {
+  member: { name: string; role?: string; title?: string; bio: string; image: string } | null;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    if (!member) return;
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleEsc);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.body.style.overflow = "";
+    };
+  }, [member, onClose]);
+
+  return (
+    <AnimatePresence>
+      {member && (
+        <motion.div
+          className="fixed inset-0 z-[200] flex items-center justify-center px-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* Backdrop */}
+          <motion.div
+            className="absolute inset-0 bg-navy/60 backdrop-blur-sm"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
+          {/* Modal */}
+          <motion.div
+            className="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-8"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-off-white flex items-center justify-center text-dark-gray hover:text-charcoal hover:bg-light-gray transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-24 h-24 rounded-full overflow-hidden ring-3 ring-deep-teal/30 shadow-lg relative mb-4">
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
+              </div>
+              <h3 className="font-sora font-semibold text-xl text-charcoal">{member.name}</h3>
+              {member.role && (
+                <p className="font-inter text-sm text-deep-teal font-medium mt-1">{member.role}</p>
+              )}
+              {member.title && (
+                <p className="font-inter text-xs text-dark-gray mt-0.5">{member.title}</p>
+              )}
+            </div>
+            <div className="font-inter text-sm text-dark-gray leading-relaxed whitespace-pre-line">
+              {member.bio}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
 function Team() {
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
+  const [modalMember, setModalMember] = useState<typeof boardMembers[0] | typeof advisoryMembers[0] | typeof aadreamTeam[0] | null>(null);
 
-  const togglePerson = (name: string) => {
-    setSelectedPerson(selectedPerson === name ? null : name);
+  const togglePerson = (personKey: string) => {
+    // Find the member across all arrays
+    const allMembers = [
+      ...boardMembers.map(m => ({ ...m, key: m.name })),
+      ...advisoryMembers.map(m => ({ ...m, key: `advisory-${m.name}` })),
+      ...aadreamTeam.map(m => ({ ...m, key: `team-${m.name}` })),
+    ];
+    const found = allMembers.find(m => m.key === personKey);
+    if (found) {
+      setModalMember(found);
+      setSelectedPerson(personKey);
+    }
+  };
+
+  const closeModal = () => {
+    setModalMember(null);
+    setSelectedPerson(null);
   };
 
   return (
@@ -1314,7 +1466,7 @@ function Team() {
             title="Meet the People Behind the Dream"
           />
 
-          {/* Board Members - Circular portraits */}
+          {/* Board Members */}
           <motion.div variants={fadeUp}>
             <motion.h3
               className="font-sora font-semibold text-xl text-charcoal text-center mb-8"
@@ -1333,20 +1485,19 @@ function Team() {
                   selectedPerson={selectedPerson}
                   togglePerson={togglePerson}
                   personKey={m.name}
-                  ringColor="bright-turquoise"
                   size="md"
                 />
               ))}
             </motion.div>
           </motion.div>
 
-          {/* Advisory Board */}
+          {/* Advisory Council */}
           <motion.div variants={fadeUp}>
             <motion.h3
               className="font-sora font-semibold text-xl text-charcoal text-center mb-8"
               variants={blurFadeUp}
             >
-              Advisory Board
+              Advisory Council
             </motion.h3>
             <motion.div
               className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16"
@@ -1359,7 +1510,6 @@ function Team() {
                   selectedPerson={selectedPerson}
                   togglePerson={togglePerson}
                   personKey={`advisory-${m.name}`}
-                  ringColor="warm-gold"
                   size="sm"
                   showRole={false}
                 />
@@ -1386,7 +1536,6 @@ function Team() {
                   selectedPerson={selectedPerson}
                   togglePerson={togglePerson}
                   personKey={`team-${m.name}`}
-                  ringColor="bright-turquoise"
                   size="sm"
                 />
               ))}
@@ -1394,6 +1543,9 @@ function Team() {
           </motion.div>
         </SectionWrapper>
       </div>
+
+      {/* Bio Modal */}
+      <BioModal member={modalMember} onClose={closeModal} />
     </section>
   );
 }
@@ -1433,10 +1585,17 @@ const eventSeries: { title: string; tag: string; tagline: string; image: string;
     title: "Table of Dreams",
     tag: "Benefit Dinner",
     tagline: "Celebrating community through culture and cuisine.",
-    image: `${BASE}/images/events/event-2.jpg`,
+    image: `${BASE}/images/events/table-of-dreams-2025-cover.jpeg`,
     description:
       "An intimate Giving Tuesday benefit dinner bringing the AAPI community together over cuisine that honors our cultural traditions.",
     editions: [
+      {
+        year: "2025",
+        title: "2025 Table of Dreams",
+        date: "Giving Tuesday, 2025",
+        note: "Raised $31,000 at Michelin Bib Gourmand-honored La D\u1ED3ng. Record-breaking evening championing the Kin Mentorship Program.",
+        href: `${BASE}/events/2025-table-of-dreams`,
+      },
       {
         year: "2024",
         title: "2024 Table of Dreams",
@@ -1640,38 +1799,138 @@ function Community() {
   );
 }
 
-/* ─── 9. Photo Mosaic Banner ─── */
+/* ─── 9. Community Photo Gallery ─── */
 function PhotoBanner() {
+  const communityPhotos = Array.from({ length: 10 }, (_, i) =>
+    `${BASE}/images/community/community-${i + 1}.jpeg`
+  );
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxSrc(communityPhotos[index]);
+  };
+
+  const closeLightbox = () => setLightboxSrc(null);
+
+  const navLightbox = (dir: -1 | 1) => {
+    const next = (lightboxIndex + dir + communityPhotos.length) % communityPhotos.length;
+    setLightboxIndex(next);
+    setLightboxSrc(communityPhotos[next]);
+  };
+
+  useEffect(() => {
+    if (!lightboxSrc) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") navLightbox(1);
+      if (e.key === "ArrowLeft") navLightbox(-1);
+    };
+    document.addEventListener("keydown", handleKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = "";
+    };
+  });
+
   return (
-    <section className="py-12 bg-white overflow-hidden">
-      <SectionWrapper>
-        <motion.div variants={fadeUp} className="flex gap-3 md:gap-4 justify-center flex-wrap">
-          {boardMembers.slice(0, 8).map((m, i) => (
+    <section className="py-16 md:py-24 bg-white overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
+        <SectionWrapper>
+          <SectionHeading
+            tag="Life at AAD"
+            title="Our Community in Action"
+          />
+          <motion.div variants={widerStagger} className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+            {communityPhotos.map((src, i) => (
+              <motion.div
+                key={src}
+                variants={cardReveal}
+                className="relative overflow-hidden rounded-2xl shadow-md group aspect-[4/3] cursor-pointer"
+                onClick={() => openLightbox(i)}
+              >
+                <Image
+                  src={src}
+                  alt={`AAD community moment ${i + 1}`}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 50vw, 20vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </motion.div>
+            ))}
+          </motion.div>
+        </SectionWrapper>
+      </div>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxSrc && (
+          <motion.div
+            className="fixed inset-0 z-[200] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={closeLightbox} />
+            {/* Close button */}
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            {/* Prev button */}
+            <button
+              onClick={() => navLightbox(-1)}
+              className="absolute left-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              aria-label="Previous"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            {/* Next button */}
+            <button
+              onClick={() => navLightbox(1)}
+              className="absolute right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              aria-label="Next"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            {/* Image */}
             <motion.div
-              key={m.name}
-              variants={fadeUp}
-              className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-md"
-              style={{ rotate: `${(i % 2 === 0 ? 1 : -1) * (3 + i)}deg` }}
-              whileHover={{ scale: 1.15, rotate: 0, zIndex: 10 }}
-              transition={{ duration: 0.3 }}
+              key={lightboxSrc}
+              className="relative max-w-[90vw] max-h-[85vh] z-10"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
             >
               <Image
-                src={m.image}
-                alt={m.name}
-                fill
-                className="object-cover"
-                sizes="80px"
+                src={lightboxSrc}
+                alt={`Community photo ${lightboxIndex + 1}`}
+                width={1200}
+                height={800}
+                className="object-contain max-h-[85vh] w-auto rounded-lg"
+                sizes="90vw"
               />
             </motion.div>
-          ))}
-          <motion.div
-            className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-bright-turquoise/20 flex items-center justify-center"
-            whileHover={{ scale: 1.1 }}
-          >
-            <span className="font-sora font-bold text-deep-teal text-sm md:text-base">+10</span>
+            {/* Counter */}
+            <p className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 font-inter text-sm text-white/60">
+              {lightboxIndex + 1} / {communityPhotos.length}
+            </p>
           </motion.div>
-        </motion.div>
-      </SectionWrapper>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -1692,15 +1951,15 @@ function CTA() {
       className="py-16 md:py-24 relative overflow-hidden"
     >
       {/* Background with parallax image */}
-      <motion.div className="absolute inset-0" style={{ y: bgY }}>
+      <motion.div className="absolute -inset-y-[20%] inset-x-0" style={{ y: bgY }}>
         <Image
           src={`${BASE}/images/events/event-2.jpg`}
           alt=""
           fill
-          className="object-cover scale-120"
+          className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-teal/90 via-bright-turquoise/80 to-deep-teal/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-deep-teal/92 via-bright-turquoise/85 to-deep-teal/92" />
       </motion.div>
 
       <div className="max-w-[800px] mx-auto px-5 md:px-8 text-center relative z-10">
@@ -1715,11 +1974,10 @@ function CTA() {
             variants={blurFadeUp}
             className="font-sora font-bold text-[28px] md:text-[48px] leading-[1.15] tracking-[-0.01em] text-white mb-6"
           >
-            Help Us Build the Next Generation of AAPI Leaders
+            Join the Movement
           </motion.h2>
           <motion.p variants={fadeUp} className="font-inter text-lg text-white/85 leading-relaxed mb-10 max-w-lg">
-            Your support provides mentorship, resources, and pathways for first-generation AAPI
-            students to achieve their dreams.
+            Your support empowers our students to fearlessly chase and achieve their career dreams.
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4">
             {/* Pulsing glow donate button */}

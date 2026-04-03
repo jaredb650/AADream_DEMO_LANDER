@@ -14,10 +14,16 @@ const inter = Inter({
   weight: ["400", "500", "600"],
 });
 
+const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
+
 export const metadata: Metadata = {
   title: "Asian American Dream | Empowering AAPI Undergraduates",
   description:
     "Asian American Dream empowers first-generation, low-income AAPI undergraduates through mentorship, professional development, and career advancement.",
+  icons: {
+    icon: `${BASE}/favicon.png`,
+    apple: `${BASE}/apple-touch-icon.png`,
+  },
 };
 
 export default function RootLayout({

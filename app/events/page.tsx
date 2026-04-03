@@ -51,10 +51,17 @@ const eventSeries = [
     title: "Table of Dreams",
     tag: "Benefit Dinner",
     tagline: "Celebrating community through culture and cuisine.",
-    image: `${BASE}/images/events/event-2.jpg`,
+    image: `${BASE}/images/events/table-of-dreams-2025-cover.jpeg`,
     description:
       "An intimate Giving Tuesday benefit dinner bringing the AAPI community together over cuisine that honors cultural traditions.",
     editions: [
+      {
+        year: "2025",
+        title: "2025 Table of Dreams",
+        date: "Giving Tuesday, 2025",
+        note: "Raised $31,000 at Michelin Bib Gourmand-honored La D\u1ED3ng. Record-breaking evening championing the Kin Mentorship Program.",
+        href: `${BASE}/events/2025-table-of-dreams`,
+      },
       {
         year: "2024",
         title: "2024 Table of Dreams",
