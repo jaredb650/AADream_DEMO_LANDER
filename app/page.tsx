@@ -346,6 +346,11 @@ function Navbar() {
 }
 
 /* ─── 3. Hero ─── */
+
+// Shared ripple mouse state between Hero and HeroBackground
+const heroRippleMouse = { x: -1, y: -1 };
+
+/* Grid glow canvas for mobile / fallback */
 function HeroGridGlow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -358,85 +363,142 @@ function HeroGridGlow() {
     const gridSize = 50;
     const gridColor = "rgba(255, 255, 255, 0.06)";
     const glowColorOptions = ["#1A6B7A", "#3BA8D4", "#4FD1C7", "#0F2A44", "#C8EBF5"];
-    let glows: { x: number; y: number; targetX: number; targetY: number; radius: number; speed: number; color: string; alpha: number; setNewTarget: () => void; update: () => void; draw: () => void }[] = [];
     let frameId: number;
 
     function createGlow() {
       const x = Math.floor(Math.random() * (canvas!.width / gridSize)) * gridSize;
       const y = Math.floor(Math.random() * (canvas!.height / gridSize)) * gridSize;
       const glow = {
-        x, y,
-        targetX: x, targetY: y,
+        x, y, targetX: x, targetY: y,
         radius: Math.random() * 100 + 50,
         speed: Math.random() * 0.015 + 0.008,
         color: glowColorOptions[Math.floor(Math.random() * glowColorOptions.length)],
         alpha: 0,
-        setNewTarget() {
-          this.targetX = Math.floor(Math.random() * (canvas!.width / gridSize)) * gridSize;
-          this.targetY = Math.floor(Math.random() * (canvas!.height / gridSize)) * gridSize;
-        },
-        update() {
-          this.x += (this.targetX - this.x) * this.speed;
-          this.y += (this.targetY - this.y) * this.speed;
-          if (Math.abs(this.targetX - this.x) < 1 && Math.abs(this.targetY - this.y) < 1) this.setNewTarget();
-          if (this.alpha < 1) this.alpha += 0.01;
-        },
-        draw() {
-          ctx!.globalAlpha = this.alpha;
-          const grad = ctx!.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
-          grad.addColorStop(0, this.color);
-          grad.addColorStop(1, "transparent");
-          ctx!.fillStyle = grad;
-          ctx!.beginPath();
-          ctx!.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-          ctx!.fill();
-          ctx!.globalAlpha = 1;
-        },
+        setNewTarget() { this.targetX = Math.floor(Math.random() * (canvas!.width / gridSize)) * gridSize; this.targetY = Math.floor(Math.random() * (canvas!.height / gridSize)) * gridSize; },
+        update() { this.x += (this.targetX - this.x) * this.speed; this.y += (this.targetY - this.y) * this.speed; if (Math.abs(this.targetX - this.x) < 1 && Math.abs(this.targetY - this.y) < 1) this.setNewTarget(); if (this.alpha < 1) this.alpha += 0.01; },
+        draw() { ctx!.globalAlpha = this.alpha; const grad = ctx!.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius); grad.addColorStop(0, this.color); grad.addColorStop(1, "transparent"); ctx!.fillStyle = grad; ctx!.beginPath(); ctx!.arc(this.x, this.y, this.radius, 0, 2 * Math.PI); ctx!.fill(); ctx!.globalAlpha = 1; },
       };
       glow.setNewTarget();
       return glow;
     }
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      glows = Array.from({ length: 12 }, () => createGlow());
-    };
-
-    const drawGrid = () => {
-      ctx.strokeStyle = gridColor;
-      ctx.lineWidth = 1;
-      for (let x = 0; x < canvas.width; x += gridSize) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-      }
-    };
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawGrid();
-      glows.forEach((g) => { g.update(); g.draw(); });
-      frameId = requestAnimationFrame(animate);
-    };
-
-    resize();
-    animate();
-    window.addEventListener("resize", resize);
+    let glows: ReturnType<typeof createGlow>[] = [];
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; glows = Array.from({ length: 12 }, () => createGlow()); };
+    const drawGrid = () => { ctx.strokeStyle = gridColor; ctx.lineWidth = 1; for (let x = 0; x < canvas.width; x += gridSize) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); } for (let y = 0; y < canvas.height; y += gridSize) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); } };
+    const animate = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); drawGrid(); glows.forEach((g) => { g.update(); g.draw(); }); frameId = requestAnimationFrame(animate); };
+    resize(); animate(); window.addEventListener("resize", resize);
     return () => { window.removeEventListener("resize", resize); cancelAnimationFrame(frameId); };
   }, []);
 
+  return <canvas ref={canvasRef} className="absolute inset-0 z-0 h-full w-full opacity-60" />;
+}
+
+/* Desktop: video + ripple distortion canvas */
+function HeroVideoRipple() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [failed, setFailed] = useState(false);
+  const rippleRef = useRef<{ prev: Float32Array; curr: Float32Array; w: number; h: number } | null>(null);
+  const mouseRef = useRef(heroRippleMouse);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const playPromise = video.play();
+    if (playPromise) playPromise.catch(() => setFailed(true));
+
+    const stallTimer = setTimeout(() => { if (video.readyState < 2) setFailed(true); }, 4000);
+
+    const canvas = canvasRef.current;
+    if (!canvas) return () => clearTimeout(stallTimer);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return () => clearTimeout(stallTimer);
+
+    const rw = 256, rh = 144;
+    rippleRef.current = { prev: new Float32Array(rw * rh), curr: new Float32Array(rw * rh), w: rw, h: rh };
+
+    const resize = () => { canvas.width = containerRef.current?.clientWidth || window.innerWidth; canvas.height = containerRef.current?.clientHeight || window.innerHeight; };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const render = () => {
+      if (!video || video.paused || video.ended || video.readyState < 2) { rafRef.current = requestAnimationFrame(render); return; }
+      const cw = canvas.width, ch = canvas.height;
+      const r = rippleRef.current!;
+
+      if (mouseRef.current.x >= 0) {
+        const rx = Math.floor((mouseRef.current.x / cw) * r.w);
+        const ry = Math.floor((mouseRef.current.y / ch) * r.h);
+        for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+          const px = rx + dx, py = ry + dy;
+          if (px >= 0 && px < r.w && py >= 0 && py < r.h && dx * dx + dy * dy <= 9) r.curr[py * r.w + px] = 512;
+        }
+      }
+
+      const next = new Float32Array(r.w * r.h);
+      for (let y = 1; y < r.h - 1; y++) for (let x = 1; x < r.w - 1; x++) {
+        const i = y * r.w + x;
+        next[i] = (r.curr[i - 1] + r.curr[i + 1] + r.curr[i - r.w] + r.curr[i + r.w]) / 2 - r.prev[i];
+        next[i] *= 0.97;
+      }
+      r.prev = r.curr; r.curr = next;
+
+      ctx.drawImage(video, 0, 0, cw, ch);
+      const imgData = ctx.getImageData(0, 0, cw, ch);
+      const src = new Uint8ClampedArray(imgData.data);
+      const dst = imgData.data;
+      const scaleX = r.w / cw, scaleY = r.h / ch;
+
+      for (let y = 1; y < ch - 1; y++) for (let x = 1; x < cw - 1; x++) {
+        const rrx = Math.floor(x * scaleX), rry = Math.floor(y * scaleY);
+        if (rrx <= 0 || rrx >= r.w - 1 || rry <= 0 || rry >= r.h - 1) continue;
+        const ri = rry * r.w + rrx;
+        const ddx = r.curr[ri - 1] - r.curr[ri + 1], ddy = r.curr[ri - r.w] - r.curr[ri + r.w];
+        if (Math.abs(ddx) < 0.5 && Math.abs(ddy) < 0.5) continue;
+        const sx = Math.min(cw - 1, Math.max(0, Math.round(x + ddx * 0.5)));
+        const sy = Math.min(ch - 1, Math.max(0, Math.round(y + ddy * 0.5)));
+        const di = (y * cw + x) * 4, si = (sy * cw + sx) * 4;
+        dst[di] = src[si]; dst[di + 1] = src[si + 1]; dst[di + 2] = src[si + 2];
+      }
+      ctx.putImageData(imgData, 0, 0);
+      rafRef.current = requestAnimationFrame(render);
+    };
+
+    rafRef.current = requestAnimationFrame(render);
+    return () => { clearTimeout(stallTimer); cancelAnimationFrame(rafRef.current); window.removeEventListener("resize", resize); };
+  }, []);
+
+  if (failed) return <HeroGridGlow />;
+
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 z-0 h-full w-full opacity-60"
-    />
+    <div ref={containerRef} className="absolute inset-0">
+      <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" style={{ opacity: 0 }} src={`${BASE}/hero-bg.mp4`} poster={`${BASE}/images/hero-poster.jpg`} autoPlay loop muted playsInline />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-[1] pointer-events-none" />
+    </div>
+  );
+}
+
+/* Chooses desktop (video+ripple) or mobile (grid glow) */
+function HeroBackground() {
+  const [isMobile, setIsMobile] = useState(true); // default to mobile/safe until hydrated
+
+  useEffect(() => {
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768);
+  }, []);
+
+  return (
+    <div className="absolute inset-0">
+      {isMobile ? <HeroGridGlow /> : <HeroVideoRipple />}
+      <div className="absolute inset-0 bg-gradient-to-r from-navy/70 via-navy/40 to-navy/20 z-[2] pointer-events-none" />
+    </div>
   );
 }
 
 function Hero() {
-  const heroRef = useRef(null);
+  const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -444,13 +506,25 @@ function Hero() {
 
   const textY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
+  const handleRipple = useCallback((e: React.MouseEvent) => {
+    const rect = heroRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    heroRippleMouse.x = e.clientX - rect.left;
+    heroRippleMouse.y = e.clientY - rect.top;
+  }, []);
+
+  const stopRipple = useCallback(() => {
+    heroRippleMouse.x = -1;
+    heroRippleMouse.y = -1;
+  }, []);
+
   return (
-    <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden" style={{ backgroundColor: "#0F2A44" }}>
-      {/* Animated grid glow background */}
-      <HeroGridGlow />
+    <section ref={heroRef} className="relative min-h-screen flex items-center overflow-hidden" style={{ backgroundColor: "#0F2A44" }} onMouseMove={handleRipple} onMouseLeave={stopRipple}>
+      {/* Video background with ripple distortion */}
+      <HeroBackground />
 
       <motion.div
-        className="max-w-[1200px] mx-auto px-5 md:px-8 w-full py-16 md:py-24 relative z-10 pt-[120px]"
+        className="max-w-[1200px] mx-auto px-5 md:px-8 w-full py-16 md:py-24 relative z-10 pt-[120px] pointer-events-none"
         style={{ y: textY }}
       >
         <div className="max-w-2xl">
@@ -492,7 +566,7 @@ function Hero() {
               Mentorship, professional development, and career advancement opportunities for AAPI undergraduates in New York.
             </motion.p>
             <motion.div
-              className="flex flex-wrap gap-4"
+              className="flex flex-wrap gap-4 pointer-events-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
