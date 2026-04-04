@@ -1241,38 +1241,62 @@ function ParticleCanvas() {
     raf.current = requestAnimationFrame(draw);
     window.addEventListener("resize", resize);
 
+    // Listen for mouse events dispatched from Impact section
+    const handleParticleMouse = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      mouse.current = { x: detail.x, y: detail.y };
+      if (detail.x > -500) trail.current.push({ x: detail.x, y: detail.y, age: 0 });
+    };
+    canvas.addEventListener("particlemouse", handleParticleMouse);
+
     return () => {
       cancelAnimationFrame(raf.current);
       window.removeEventListener("resize", resize);
+      canvas.removeEventListener("particlemouse", handleParticleMouse);
     };
-  }, []);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const rect = canvasRef.current?.parentElement?.getBoundingClientRect();
-    if (!rect) return;
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    mouse.current = { x, y };
-    trail.current.push({ x, y, age: 0 });
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => { mouse.current = { x: -1000, y: -1000 }; }}
-      className="absolute inset-0 w-full h-full"
+      className="absolute inset-0 w-full h-full pointer-events-none"
       style={{ zIndex: 1 }}
     />
   );
 }
 
 function Impact() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const impactMouse = useRef({ x: -1000, y: -1000 });
+
+  // Wire up ParticleCanvas mouse via shared ref — ParticleCanvas reads from its own mouse ref,
+  // so we need to pass it through. We'll use a DOM-level approach instead.
+  const handleImpactMouse = useCallback((e: React.MouseEvent) => {
+    const rect = sectionRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    impactMouse.current = { x, y };
+    // Dispatch to ParticleCanvas's mouse ref via the canvas element's dataset
+    const canvas = sectionRef.current?.querySelector("canvas");
+    if (canvas) {
+      canvas.dispatchEvent(new CustomEvent("particlemouse", { detail: { x, y } }));
+    }
+  }, []);
+
   return (
-    <section className="py-16 md:py-24 bg-navy relative overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="py-16 md:py-24 bg-navy relative overflow-hidden"
+      onMouseMove={handleImpactMouse}
+      onMouseLeave={() => {
+        const canvas = sectionRef.current?.querySelector("canvas");
+        if (canvas) canvas.dispatchEvent(new CustomEvent("particlemouse", { detail: { x: -1000, y: -1000 } }));
+      }}
+    >
       <ParticleCanvas />
 
-      <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-10">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-10 pointer-events-none">
         <SectionWrapper>
           <motion.div variants={fadeUp} className="text-center mb-14">
             <span className="inline-block font-inter font-semibold text-xs tracking-[0.08em] uppercase text-bright-turquoise mb-3">
