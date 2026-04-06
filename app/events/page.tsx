@@ -32,7 +32,7 @@ const eventSeries = [
     title: "Gala of Dreams",
     tag: "Gala",
     tagline: "An evening of elegance and inspiration celebrating AAPI excellence.",
-    image: `${BASE}/images/events/gala-of-dreams.png`,
+    image: `${BASE}/images/events/gala-of-dreams.jpg`,
     description:
       "AAD\u2019s signature gala brings together industry pioneers, community leaders, and mission champions to celebrate milestones and empower emerging AAPI leaders.",
     editions: [

@@ -13,7 +13,7 @@ export default function EventGalaOfDreams() {
       title="Inaugural Gala of Dreams"
       date="May 19, 2026 · 6:30 PM – 11:00 PM EDT"
       tag="Gala"
-      heroImage={`${BASE}/images/events/gala-of-dreams.png`}
+      heroImage={`${BASE}/images/events/gala-of-dreams.jpg`}
     >
       <p>
         Join us for an evening of elegance and inspiration as Asian American Dream celebrates
