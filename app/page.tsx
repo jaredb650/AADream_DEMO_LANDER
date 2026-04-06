@@ -270,7 +270,7 @@ function Navbar() {
             </motion.a>
           ))}
           <motion.a
-            href="https://givebutter.com/asianamericandream"
+            href="https://givebutter.com/c/galaofdreams"
             target="_blank"
             rel="noopener noreferrer"
             className="font-inter font-semibold text-sm bg-warm-gold text-navy px-6 py-2.5 rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
@@ -280,7 +280,7 @@ function Navbar() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
           >
-            Donate
+            Gala of Dreams
           </motion.a>
         </div>
 
@@ -329,13 +329,13 @@ function Navbar() {
                 </a>
               ))}
               <a
-                href="https://givebutter.com/asianamericandream"
+                href="https://givebutter.com/c/galaofdreams"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileOpen(false)}
                 className="font-inter font-semibold text-sm bg-warm-gold text-navy px-6 py-3 rounded-full text-center mt-2"
               >
-                Donate
+                Gala of Dreams
               </a>
             </div>
           </motion.div>
@@ -666,7 +666,7 @@ const whyItMattersSlides = [
       "The top 10% of AAPI earners make 11 times the bottom 10% \u2014 the largest income disparity of any racial group in the United States. We exist to change this.",
   },
   {
-    stat: "0",
+    stat: "",
     label: "Career Readiness Programs",
     description:
       "Across the United States, there is a severe lack of career readiness programs for AAPI college students. Long-established and well-endowed organizations exclude AAPI out of their target communities.",
@@ -1436,7 +1436,7 @@ function TeamMemberCard({
         {showRole && member.role && (
           <p className="font-inter text-xs text-deep-teal font-medium">{member.role}</p>
         )}
-        {!showRole && <p className="font-inter text-xs text-dark-gray">Advisory</p>}
+        {!showRole && <p className="font-inter text-xs text-dark-gray">Member</p>}
         {member.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{member.title}</p>}
       </button>
     </motion.div>
@@ -2072,7 +2072,7 @@ function CTA() {
             variants={blurFadeUp}
             className="font-sora font-bold text-[28px] md:text-[48px] leading-[1.15] tracking-[-0.01em] text-white mb-6"
           >
-            Join the Movement
+            Empower Dreams
           </motion.h2>
           <motion.p variants={fadeUp} className="font-inter text-lg text-white/85 leading-relaxed mb-10 max-w-lg">
             Your support empowers our students to fearlessly chase and achieve their career dreams.
