@@ -1,10 +1,25 @@
+import type { Metadata } from "next";
 import EventLayout, { PhotoGallery } from "../EventLayout";
 
 const BASE = "";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "2024 Table of Dreams | Asian American Dream",
   description: "AAD's inaugural Giving Tuesday benefit dinner at La Dồng in New York City, sponsored by Mizuho Americas.",
+  openGraph: {
+    title: "2024 Table of Dreams | Asian American Dream",
+    description: "AAD's inaugural Giving Tuesday benefit dinner at La Dồng in NYC, sponsored by Mizuho Americas.",
+    url: "https://asianamericandream.org/events/table-of-dreams",
+    type: "website",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "2024 Table of Dreams" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "2024 Table of Dreams | Asian American Dream",
+    description: "AAD's inaugural Giving Tuesday benefit dinner at La Dồng in NYC, sponsored by Mizuho Americas.",
+    images: ["/og-image.png"],
+  },
+  alternates: { canonical: "https://asianamericandream.org/events/table-of-dreams" },
 };
 
 export default function EventTableOfDreams() {

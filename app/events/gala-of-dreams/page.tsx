@@ -1,10 +1,25 @@
+import type { Metadata } from "next";
 import EventLayout from "../EventLayout";
 
 const BASE = "";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Inaugural Gala of Dreams | Asian American Dream",
-  description: "Celebrating 5 years of impact at Glasshouse Chelsea, NYC. May 19, 2026.",
+  description: "Celebrating 5 years of impact at Glasshouse Chelsea, NYC. May 19, 2026. An evening of elegance and inspiration celebrating AAPI excellence.",
+  openGraph: {
+    title: "Inaugural Gala of Dreams | Asian American Dream",
+    description: "Celebrating 5 years of impact at Glasshouse Chelsea, NYC. May 19, 2026.",
+    url: "https://asianamericandream.org/events/gala-of-dreams",
+    type: "website",
+    images: [{ url: "/images/events/gala-of-dreams.jpg", width: 1200, height: 630, alt: "Gala of Dreams" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Inaugural Gala of Dreams | Asian American Dream",
+    description: "Celebrating 5 years of impact at Glasshouse Chelsea, NYC. May 19, 2026.",
+    images: ["/images/events/gala-of-dreams.jpg"],
+  },
+  alternates: { canonical: "https://asianamericandream.org/events/gala-of-dreams" },
 };
 
 export default function EventGalaOfDreams() {

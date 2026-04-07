@@ -1,10 +1,25 @@
+import type { Metadata } from "next";
 import EventLayout, { ResultsTable, PhotoGallery } from "../EventLayout";
 
 const BASE = "";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "2024 AAD Open | Asian American Dream",
   description: "The second annual AAD Open tennis fundraiser at USTA Billie Jean King National Tennis Center.",
+  openGraph: {
+    title: "2024 AAD Open | Asian American Dream",
+    description: "The second annual AAD Open at USTA Billie Jean King National Tennis Center.",
+    url: "https://asianamericandream.org/events/2024-aad-open",
+    type: "website",
+    images: [{ url: "/images/events/event-1.jpg", width: 1200, height: 630, alt: "2024 AAD Open" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "2024 AAD Open | Asian American Dream",
+    description: "The second annual AAD Open at USTA Billie Jean King National Tennis Center.",
+    images: ["/images/events/event-1.jpg"],
+  },
+  alternates: { canonical: "https://asianamericandream.org/events/2024-aad-open" },
 };
 
 export default function Event2024AADOpen() {

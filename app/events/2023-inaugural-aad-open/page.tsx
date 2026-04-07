@@ -1,10 +1,25 @@
+import type { Metadata } from "next";
 import EventLayout, { ResultsTable, PhotoGallery } from "../EventLayout";
 
 const BASE = "";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "2023 Inaugural AAD Open | Asian American Dream",
   description: "The inaugural AAD Open tennis fundraiser at Chestnut Ridge Racquet Club.",
+  openGraph: {
+    title: "2023 Inaugural AAD Open | Asian American Dream",
+    description: "The inaugural AAD Open tennis fundraiser at Chestnut Ridge Racquet Club.",
+    url: "https://asianamericandream.org/events/2023-inaugural-aad-open",
+    type: "website",
+    images: [{ url: "/images/events/event-1.jpg", width: 1200, height: 630, alt: "2023 Inaugural AAD Open" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "2023 Inaugural AAD Open | Asian American Dream",
+    description: "The inaugural AAD Open tennis fundraiser at Chestnut Ridge Racquet Club.",
+    images: ["/images/events/event-1.jpg"],
+  },
+  alternates: { canonical: "https://asianamericandream.org/events/2023-inaugural-aad-open" },
 };
 
 export default function Event2023AADOpen() {

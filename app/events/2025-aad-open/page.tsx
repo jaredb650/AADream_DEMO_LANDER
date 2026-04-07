@@ -1,10 +1,25 @@
+import type { Metadata } from "next";
 import EventLayout, { ResultsTable, PhotoGallery } from "../EventLayout";
 
 const BASE = "";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "2025 AAD Open | Asian American Dream",
   description: "The third annual AAD Open tennis fundraiser brought 84 players and raised $14,988 for AAPI undergraduates.",
+  openGraph: {
+    title: "2025 AAD Open | Asian American Dream",
+    description: "84 players, $14,988 raised at the third annual AAD Open tennis fundraiser.",
+    url: "https://asianamericandream.org/events/2025-aad-open",
+    type: "website",
+    images: [{ url: "/images/events/event-1.jpg", width: 1200, height: 630, alt: "2025 AAD Open" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "2025 AAD Open | Asian American Dream",
+    description: "84 players, $14,988 raised at the third annual AAD Open tennis fundraiser.",
+    images: ["/images/events/event-1.jpg"],
+  },
+  alternates: { canonical: "https://asianamericandream.org/events/2025-aad-open" },
 };
 
 export default function Event2025AADOpen() {

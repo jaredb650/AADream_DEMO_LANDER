@@ -1,10 +1,25 @@
+import type { Metadata } from "next";
 import EventLayout, { PhotoGallery } from "../EventLayout";
 
 const BASE = "";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "2025 Table of Dreams | Asian American Dream",
   description: "AAD's 2nd Annual Table of Dreams Giving Tuesday benefit dinner, raising $31,000 in support of the Kin Mentorship Program.",
+  openGraph: {
+    title: "2025 Table of Dreams | Asian American Dream",
+    description: "Raised $31,000 at AAD's 2nd Annual Table of Dreams Giving Tuesday benefit dinner.",
+    url: "https://asianamericandream.org/events/2025-table-of-dreams",
+    type: "website",
+    images: [{ url: "/images/events/table-of-dreams-2025-cover.jpeg", width: 1200, height: 630, alt: "2025 Table of Dreams" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "2025 Table of Dreams | Asian American Dream",
+    description: "Raised $31,000 at AAD's 2nd Annual Table of Dreams Giving Tuesday benefit dinner.",
+    images: ["/images/events/table-of-dreams-2025-cover.jpeg"],
+  },
+  alternates: { canonical: "https://asianamericandream.org/events/2025-table-of-dreams" },
 };
 
 export default function Event2025TableOfDreams() {
