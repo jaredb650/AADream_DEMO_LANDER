@@ -1,6 +1,6 @@
 import EventLayout, { PhotoGallery } from "../EventLayout";
 
-const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
+const BASE = "";
 
 export const metadata = {
   title: "2024 Table of Dreams | Asian American Dream",

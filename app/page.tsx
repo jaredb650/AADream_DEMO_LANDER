@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } from "framer-motion";
 import Image from "next/image";
 
-const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
+const BASE = "";
 
 /* ─── Shared Animation Variants ─── */
 const fadeUp = {

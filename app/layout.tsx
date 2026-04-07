@@ -14,7 +14,7 @@ const inter = Inter({
   weight: ["400", "500", "600"],
 });
 
-const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
+const BASE = "";
 
 export const metadata: Metadata = {
   title: "Asian American Dream | Empowering AAPI Undergraduates",

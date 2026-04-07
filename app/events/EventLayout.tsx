@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
-const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
+const BASE = "";
 
 export interface EventPageProps {
   title: string;

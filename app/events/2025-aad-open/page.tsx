@@ -1,6 +1,6 @@
 import EventLayout, { ResultsTable, PhotoGallery } from "../EventLayout";
 
-const BASE = process.env.NODE_ENV === "production" ? "/AADream_DEMO_LANDER" : "";
+const BASE = "";
 
 export const metadata = {
   title: "2025 AAD Open | Asian American Dream",
