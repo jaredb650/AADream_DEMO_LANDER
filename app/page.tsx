@@ -1353,13 +1353,13 @@ const boardMembers = [
 ];
 
 const advisoryMembers = [
-  { name: "Alex Chester-Iwata", title: "Founder, Mixed Asian Media", bio: "Alex Chester-Iwata is an award-winning performer, writer, and cultural advocate with over 35 years in the entertainment industry. A former child actor and member of Diddy\u2019s girl group Dream, she has appeared on Broadway and across major networks, including ABC, NBC, and PBS. As a mixed race Japanese and Jewish American, Alex channeled her experiences into founding Mixed Asian Media\u2014a platform dedicated to uplifting mixed AAPINH voices\u2014which has been recognized by Nielsen and included in academic texts.\n\nShe is also the founder of Mixed Asian Day\u2122, a national movement celebrating mixed Asian identity, and has spoken at events hosted by TikTok, Amazon, Tribeca Festival, and more. Alex serves on multiple national boards, including ACE NextGen, American Advertising Federation LA, New York Asian Film Festival, Philadelphia Asian American Film Foundation, and The Lunar Collective. She was also honored with the National Association of Asian Americans\u2019 Inspire Award in 2025.", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
-  { name: "Timothy Fong", title: "Senior Systems Specialist, Warburg Pincus", bio: "Tim is a seasoned business technologist with over nine years of experience in implementing and managing enterprise systems. He is currently a senior systems specialist at Warburg Pincus, a leading global private equity firm, where he partners with cross-functional teams to enhance operational efficiency through practical, technology-driven solutions.\n\nAs a proud first-generation Asian American, Tim is deeply committed to creating long-term pathways for success within the community. He believes in the transformative power of mentorship and is focused on building a sustainable, strategic support network for early-career Asian professionals from underserved socioeconomic backgrounds\u2014empowering the next generation to thrive in the workforce.", image: `${BASE}/images/team/timothy-fong.jpg` },
-  { name: "Esther Kim", title: "Program Manager, Microsoft Azure", bio: "A Florida native and proud University of Florida alum, Esther studied Chemical Engineering and earned a Piano Performance certificate. She is currently a Program Manager at Microsoft within the Azure Customer Reliability Engineering organization, partnering with customers on outage escalations and driving operational excellence.\n\nOutside of her core role, she serves as the Chair for Microsoft Asians of New York, where she is passionate about fostering community and celebrating cultural heritage, events, and traditions across the region.", image: `${BASE}/images/team/esther-kim.jpg` },
-  { name: "Jerry Lee", title: "Co-Founder, Wonsulting", bio: "Jerry is the Co-Founder of Wonsulting and an ex-Senior Strategy & Operations Manager at Google & used to lead Product Strategy at Lucid. After graduating college, Jerry was hired as the youngest analyst in his organization by being promoted multiple times in his first 2 years. After he left Google, he was the youngest person to lead a strategy team at Lucid.\n\nJerry started Wonsulting to help millions around the world land their dream jobs. Through his work, he\u2019s spoken at 250+ events & amassed 3M+ followers across LinkedIn, TikTok & Instagram and has reached 1B+ jobseekers globally. In addition, his work has been featured on Forbes, Newsweek, Business Insider, Yahoo! News, LinkedIn & Forbes 30 under 30.", image: `${BASE}/images/team/jerry-lee.jpg` },
-  { name: "Dawn Lucovich", title: "Founding Faculty, University of Nagano", bio: "Dawn Lucovich was one of the founding faculty members at The University of Nagano in Nagano, Japan. She previously worked at a private university in Tokyo, as well as Columbia University and New York University. She specializes in change management, and organizational leadership and learning. She is passionate about AAD\u2019s mission of supporting and mentoring Asian American university students.\n\nShe has lived and worked in the United States, England, South Korea, and Japan. She currently sits on the Board of Directors for the Jersey City Arts Council, and serves on the Teachers College Alumni Association and as Co-Chair of the George Washington University Asian Pacific Islander Network. She also belongs to the New York Junior League and Toastmasters International.", image: `${BASE}/images/team/dawn-lucovich.jpg` },
-  { name: "Rhea Mahajan", title: "CPA, SASB FSA Level II", bio: "Rhea is a CPA and SASB FSA Level II certified professional with expertise in development, social impact, and consulting. She has driven meaningful change through roles such as Development Account Manager at APIA Scholars, where she worked on a multi-million-dollar fundraising plan, and Social Innovation and Operations Officer at Smart City Expo USA, leading efforts to advance equitable and sustainable urban development.\n\nAt APCO Impact, Rhea advised foundations and corporations on financial inclusion, ESG, philanthropy, and DEI initiatives while co-leading the firm\u2019s ANHPI ERG to amplify advocacy and awareness. Her career began in forensic and litigation consulting, partnering with federal agencies and supporting high-stakes investigations.\n\nBeyond her professional work, Rhea is a skilled media host with over 4 million views across South Asian and personal platforms. Fluent in English and Hindi, she is passionate about empowering the ANHPI community and expanding career opportunities for underserved AAPI students.", image: `${BASE}/images/team/rhea-mahajan.jpg` },
-  { name: "Alicia Underwood", title: "Founder, TwentyThree LLC", bio: "Alicia Underwood is the founder of TwentyThree, LLC, a digital communications and influencer marketing agency based in St. Louis. With 15 years of experience in social media strategy and brand storytelling, she partners with enthusiastic, values-driven brands to help them stand out in a crowded digital landscape.\n\nThrough TwentyThree, Alicia leads strategy, creative, and execution across social media, paid media, and influencer marketing. She works with clients across healthcare, hospitality, and luxury, and is known for blending data, creativity, and culture into campaigns that move people and deliver results.\n\nAlongside her client work, Alicia is building The Social Box, a software platform designed to simplify influencer marketing workflows. She also teaches and speaks on the business of social media and influencer marketing, including at MDMC, one of the Midwest\u2019s largest digital conferences. Additionally, she serves on the board of Social Media Club St. Louis and previously served as President of the Lafayette Square Business Association.\n\nAlicia is passionate about storytelling, community building, and helping brands grow with clarity and confidence. She lives in Webster Groves with her husband, two boys, and two cats. She also enjoys Pilates, reading, and cooking in her free time.", image: `${BASE}/images/team/alicia-underwood.jpg` },
+  { name: "Alex Chester-Iwata", role: "Member", bio: "Alex Chester-Iwata is an award-winning performer, writer, and cultural advocate with over 35 years in the entertainment industry. A former child actor and member of Diddy\u2019s girl group Dream, she has appeared on Broadway and across major networks, including ABC, NBC, and PBS. As a mixed race Japanese and Jewish American, Alex channeled her experiences into founding Mixed Asian Media\u2014a platform dedicated to uplifting mixed AAPINH voices\u2014which has been recognized by Nielsen and included in academic texts.\n\nShe is also the founder of Mixed Asian Day\u2122, a national movement celebrating mixed Asian identity, and has spoken at events hosted by TikTok, Amazon, Tribeca Festival, and more. Alex serves on multiple national boards, including ACE NextGen, American Advertising Federation LA, New York Asian Film Festival, Philadelphia Asian American Film Foundation, and The Lunar Collective. She was also honored with the National Association of Asian Americans\u2019 Inspire Award in 2025.", image: `${BASE}/images/team/alex-chester-iwata.jpg` },
+  { name: "Timothy Fong", role: "Member", bio: "Tim is a seasoned business technologist with over nine years of experience in implementing and managing enterprise systems. He is currently a senior systems specialist at Warburg Pincus, a leading global private equity firm, where he partners with cross-functional teams to enhance operational efficiency through practical, technology-driven solutions.\n\nAs a proud first-generation Asian American, Tim is deeply committed to creating long-term pathways for success within the community. He believes in the transformative power of mentorship and is focused on building a sustainable, strategic support network for early-career Asian professionals from underserved socioeconomic backgrounds\u2014empowering the next generation to thrive in the workforce.", image: `${BASE}/images/team/timothy-fong.jpg` },
+  { name: "Esther Kim", role: "Member", bio: "A Florida native and proud University of Florida alum, Esther studied Chemical Engineering and earned a Piano Performance certificate. She is currently a Program Manager at Microsoft within the Azure Customer Reliability Engineering organization, partnering with customers on outage escalations and driving operational excellence.\n\nOutside of her core role, she serves as the Chair for Microsoft Asians of New York, where she is passionate about fostering community and celebrating cultural heritage, events, and traditions across the region.", image: `${BASE}/images/team/esther-kim.jpg` },
+  { name: "Jerry Lee", role: "Member", bio: "Jerry is the Co-Founder of Wonsulting and an ex-Senior Strategy & Operations Manager at Google & used to lead Product Strategy at Lucid. After graduating college, Jerry was hired as the youngest analyst in his organization by being promoted multiple times in his first 2 years. After he left Google, he was the youngest person to lead a strategy team at Lucid.\n\nJerry started Wonsulting to help millions around the world land their dream jobs. Through his work, he\u2019s spoken at 250+ events & amassed 3M+ followers across LinkedIn, TikTok & Instagram and has reached 1B+ jobseekers globally. In addition, his work has been featured on Forbes, Newsweek, Business Insider, Yahoo! News, LinkedIn & Forbes 30 under 30.", image: `${BASE}/images/team/jerry-lee.jpg` },
+  { name: "Dawn Lucovich", role: "Member", bio: "Dawn Lucovich was one of the founding faculty members at The University of Nagano in Nagano, Japan. She previously worked at a private university in Tokyo, as well as Columbia University and New York University. She specializes in change management, and organizational leadership and learning. She is passionate about AAD\u2019s mission of supporting and mentoring Asian American university students.\n\nShe has lived and worked in the United States, England, South Korea, and Japan. She currently sits on the Board of Directors for the Jersey City Arts Council, and serves on the Teachers College Alumni Association and as Co-Chair of the George Washington University Asian Pacific Islander Network. She also belongs to the New York Junior League and Toastmasters International.", image: `${BASE}/images/team/dawn-lucovich.jpg` },
+  { name: "Rhea Mahajan", role: "Member", bio: "Rhea is a CPA and SASB FSA Level II certified professional with expertise in development, social impact, and consulting. She has driven meaningful change through roles such as Development Account Manager at APIA Scholars, where she worked on a multi-million-dollar fundraising plan, and Social Innovation and Operations Officer at Smart City Expo USA, leading efforts to advance equitable and sustainable urban development.\n\nAt APCO Impact, Rhea advised foundations and corporations on financial inclusion, ESG, philanthropy, and DEI initiatives while co-leading the firm\u2019s ANHPI ERG to amplify advocacy and awareness. Her career began in forensic and litigation consulting, partnering with federal agencies and supporting high-stakes investigations.\n\nBeyond her professional work, Rhea is a skilled media host with over 4 million views across South Asian and personal platforms. Fluent in English and Hindi, she is passionate about empowering the ANHPI community and expanding career opportunities for underserved AAPI students.", image: `${BASE}/images/team/rhea-mahajan.jpg` },
+  { name: "Alicia Underwood", role: "Member", bio: "Alicia Underwood is the founder of TwentyThree, LLC, a digital communications and influencer marketing agency based in St. Louis. With 15 years of experience in social media strategy and brand storytelling, she partners with enthusiastic, values-driven brands to help them stand out in a crowded digital landscape.\n\nThrough TwentyThree, Alicia leads strategy, creative, and execution across social media, paid media, and influencer marketing. She works with clients across healthcare, hospitality, and luxury, and is known for blending data, creativity, and culture into campaigns that move people and deliver results.\n\nAlongside her client work, Alicia is building The Social Box, a software platform designed to simplify influencer marketing workflows. She also teaches and speaks on the business of social media and influencer marketing, including at MDMC, one of the Midwest\u2019s largest digital conferences. Additionally, she serves on the board of Social Media Club St. Louis and previously served as President of the Lafayette Square Business Association.\n\nAlicia is passionate about storytelling, community building, and helping brands grow with clarity and confidence. She lives in Webster Groves with her husband, two boys, and two cats. She also enjoys Pilates, reading, and cooking in her free time.", image: `${BASE}/images/team/alicia-underwood.jpg` },
 ];
 
 const aadreamTeam = [
@@ -1369,7 +1369,7 @@ const aadreamTeam = [
   { name: "Daron Fong", role: "Community Manager", bio: "Daron is a Principal Engineering Project Manager at Fresenius Medical Care, with a background in chemical engineering. He\u2019s born and raised in the SF Bay Area and graduated as a Regents Scholar from UC Davis.\n\nOutside of his day job, Daron enjoys bringing people together, playing basketball, practicing hip hop dance, and going on fun travel adventures (25+ countries, climbed Mt Kilimanjaro last year and survived altitude sickness). He\u2019s looking to make an impact with the AAD community by bringing more fun events to program members!", image: `${BASE}/images/team/daron-fong.jpg` },
   { name: "Kevin Ha", role: "Founder & Executive Director", bio: "Kevin Ha is the Founder and Executive Director of Asian American Dream (AAD), a New York-based nonprofit that provides mentorship, professional development, and career advancement opportunities for underserved AAPI undergraduates.\n\nSince founding AAD in 2021, Kevin has scaled the organization to serve 200 mentees and 200 mentors annually. Most recently, he was selected as a 2024-2025 Obama USA Leader by the Obama Foundation and a 2024 Fellow by The EGF Accelerator, respectively.\n\nPrior to AAD, Kevin worked in the Markets Group at the Federal Reserve Bank of New York. Kevin is a proud Cate School (\u201917) and Skidmore College (\u201921) alumnus.", image: `${BASE}/images/team/kevin-ha.jpg` },
   { name: "Yi Huang", role: "Director of Student Engagement", bio: "Yi Huang is a sophomore at Cornell University in the Dyson School where she is pursuing a degree in Applied Economics and Management with a concentration in Entrepreneurship. She is a 2026 Girls Who Invest Summer Intensive Program Scholar and a 2026 Investment Associate Intern at Lord Abbett. She was born and raised in Brooklyn, NY and enjoys watching Real Estate shows and playing strategic games in her free time. As a first-generation student, mentorship within and outside of AAD has had a big impact on her personal, academic, and professional growth, making her passionate about creating open spaces for people to pursue their dreams.", image: `${BASE}/images/team/yi-huang.jpg` },
-  { name: "Joseph Kao", role: "Community Manager", bio: "Bio coming soon.", image: `${BASE}/images/team/placeholder.jpg` },
+  { name: "Joseph Kao", role: "Community Manager", bio: "Bio coming soon.", image: `${BASE}/images/team/joseph-kao.jpg` },
   { name: "Josh Minsup Kim", role: "Co-Program Director", bio: "Josh is in GTM & Product at MindStudio, a No/Lo-Code AI Agent developing platform. Prior to diving into the AI Startup space, Josh was a Data Insights & Analytics Consultant at Kantar, leveraging digital search and social data to guide product, marketing, and brand strategy. He\u2019s also dabbled in venture capital at Syntax Capital (formerly Aves Lair) and TZ Ventures where he sourced startups as well as support the incubation of South Korea\u2019s first B2B Buy Now Pay Later service.\n\nA proud Third Culture Kid (TCK) with roots in both Seoul and New York, Josh is passionate about empowering Asian American professionals with the insights and tools they need to pursue meaningful, purpose-driven careers. Outside of work, he\u2019s an avid volleyball player, enjoys food crawls, and has recently taken up photography.", image: `${BASE}/images/team/josh-minsup-kim.jpg` },
   { name: "Perry Leong", role: "Director of Community", bio: "I\u2019m currently a Sr. Product Marketing Manager at Microsoft working on Azure cloud infrastructure, where I create and manage marketing strategy for Azure Virtual Machines and various IaaS products. I\u2019ve been lucky enough to have a variety of roles from software engineering to technical marketing that have allowed me to leverage a unique combination of technical and interpersonal skills. I love bringing people together and am driven by a desire to make the world more connected. I was born and raised in the SF Bay Area and have been living in Manhattan since 2023. In my free time, I love to travel (over 45 countries!), host social events, play basketball, and take pictures.", image: `${BASE}/images/team/perry-leong.jpg` },
   { name: "Anita Lin", role: "AAD Ambassador", bio: "Anita is a junior at Columbia University studying Cognitive Science and Sustainable Development. She is from New York, the Outer Banks, and Fuzhou, China. Currently, she is a Growth Program Management intern at NBCUniversal Peacock and on the data team at Columbia Technology Ventures. In her free time, you can find her trying new NYC restaurants to rank on Beli!", image: `${BASE}/images/team/anita-lin.jpg` },
@@ -1392,20 +1392,12 @@ function TeamMemberCard({
   selectedPerson,
   togglePerson,
   personKey,
-  size = "md",
-  showRole = true,
 }: {
   member: { name: string; role?: string; title?: string; bio: string; image: string };
   selectedPerson: string | null;
   togglePerson: (name: string) => void;
   personKey: string;
-  size?: "sm" | "md";
-  showRole?: boolean;
 }) {
-  const sizeClasses = size === "md"
-    ? "w-24 h-24 md:w-28 md:h-28"
-    : "w-20 h-20 md:w-24 md:h-24";
-
   return (
     <motion.div
       variants={scaleIn}
@@ -1417,7 +1409,7 @@ function TeamMemberCard({
         className={`flex flex-col items-center group ${member.bio ? "cursor-pointer" : "cursor-default"}`}
       >
         <motion.div
-          className={`${sizeClasses} rounded-full overflow-hidden shadow-lg ring-3 ring-deep-teal/30 relative`}
+          className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg ring-3 ring-deep-teal/30 relative"
           whileHover={{
             scale: 1.08,
             boxShadow: "0 8px 30px rgba(26,107,122,0.25)",
@@ -1432,9 +1424,8 @@ function TeamMemberCard({
             alt={member.name}
             fill
             className="object-cover"
-            sizes="112px"
+            sizes="96px"
           />
-          {/* Hover overlay */}
           <motion.div
             className="absolute inset-0 bg-gradient-to-t from-navy/40 to-transparent"
             initial={{ opacity: 0 }}
@@ -1443,11 +1434,9 @@ function TeamMemberCard({
           />
         </motion.div>
         <p className="font-inter font-medium text-sm text-charcoal mt-3 text-center">{member.name}</p>
-        {showRole && member.role && (
+        {member.role && (
           <p className="font-inter text-xs text-deep-teal font-medium">{member.role}</p>
         )}
-        {!showRole && <p className="font-inter text-xs text-dark-gray">Member</p>}
-        {member.title && <p className="font-inter text-[11px] text-dark-gray mt-0.5 text-center max-w-[140px]">{member.title}</p>}
       </button>
     </motion.div>
   );
@@ -1593,7 +1582,6 @@ function Team() {
                   selectedPerson={selectedPerson}
                   togglePerson={togglePerson}
                   personKey={m.name}
-                  size="md"
                 />
               ))}
             </motion.div>
@@ -1618,8 +1606,6 @@ function Team() {
                   selectedPerson={selectedPerson}
                   togglePerson={togglePerson}
                   personKey={`advisory-${m.name}`}
-                  size="sm"
-                  showRole={false}
                 />
               ))}
             </motion.div>
@@ -1644,7 +1630,6 @@ function Team() {
                   selectedPerson={selectedPerson}
                   togglePerson={togglePerson}
                   personKey={`team-${m.name}`}
-                  size="sm"
                 />
               ))}
             </motion.div>
