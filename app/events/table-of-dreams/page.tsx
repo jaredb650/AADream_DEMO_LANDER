@@ -4,7 +4,7 @@ import EventLayout, { PhotoGallery } from "../EventLayout";
 const BASE = "";
 
 export const metadata: Metadata = {
-  title: "2024 Table of Dreams | Asian American Dream",
+  title: "2024 Table of Dreams",
   description: "AAD's inaugural Giving Tuesday benefit dinner at La Dồng in New York City, sponsored by Mizuho Americas.",
   openGraph: {
     title: "2024 Table of Dreams | Asian American Dream",

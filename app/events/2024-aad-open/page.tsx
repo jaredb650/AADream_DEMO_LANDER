@@ -4,7 +4,7 @@ import EventLayout, { ResultsTable, PhotoGallery } from "../EventLayout";
 const BASE = "";
 
 export const metadata: Metadata = {
-  title: "2024 AAD Open | Asian American Dream",
+  title: "2024 AAD Open",
   description: "The second annual AAD Open tennis fundraiser at USTA Billie Jean King National Tennis Center.",
   openGraph: {
     title: "2024 AAD Open | Asian American Dream",

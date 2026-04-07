@@ -4,7 +4,7 @@ import EventLayout, { PhotoGallery } from "../EventLayout";
 const BASE = "";
 
 export const metadata: Metadata = {
-  title: "2025 Table of Dreams | Asian American Dream",
+  title: "2025 Table of Dreams",
   description: "AAD's 2nd Annual Table of Dreams Giving Tuesday benefit dinner, raising $31,000 in support of the Kin Mentorship Program.",
   openGraph: {
     title: "2025 Table of Dreams | Asian American Dream",

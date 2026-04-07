@@ -4,7 +4,7 @@ import EventLayout, { ResultsTable, PhotoGallery } from "../EventLayout";
 const BASE = "";
 
 export const metadata: Metadata = {
-  title: "2023 Inaugural AAD Open | Asian American Dream",
+  title: "2023 Inaugural AAD Open",
   description: "The inaugural AAD Open tennis fundraiser at Chestnut Ridge Racquet Club.",
   openGraph: {
     title: "2023 Inaugural AAD Open | Asian American Dream",

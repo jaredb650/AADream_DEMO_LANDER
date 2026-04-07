@@ -4,7 +4,7 @@ import EventLayout from "../EventLayout";
 const BASE = "";
 
 export const metadata: Metadata = {
-  title: "Inaugural Gala of Dreams | Asian American Dream",
+  title: "Inaugural Gala of Dreams",
   description: "Celebrating 5 years of impact at Glasshouse Chelsea, NYC. May 19, 2026. An evening of elegance and inspiration celebrating AAPI excellence.",
   openGraph: {
     title: "Inaugural Gala of Dreams | Asian American Dream",

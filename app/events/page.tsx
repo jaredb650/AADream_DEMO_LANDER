@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import EventsClient from "./EventsClient";
 
 export const metadata: Metadata = {
-  title: "Events | Asian American Dream",
+  title: "Events",
   description:
     "From galas to benefit dinners to tennis fundraisers — explore AAD's community events that bring the AAPI community together and raise funds for undergraduates.",
   openGraph: {

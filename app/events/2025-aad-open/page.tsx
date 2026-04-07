@@ -4,7 +4,7 @@ import EventLayout, { ResultsTable, PhotoGallery } from "../EventLayout";
 const BASE = "";
 
 export const metadata: Metadata = {
-  title: "2025 AAD Open | Asian American Dream",
+  title: "2025 AAD Open",
   description: "The third annual AAD Open tennis fundraiser brought 84 players and raised $14,988 for AAPI undergraduates.",
   openGraph: {
     title: "2025 AAD Open | Asian American Dream",
