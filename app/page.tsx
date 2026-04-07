@@ -1572,7 +1572,7 @@ function Team() {
               Board of Directors
             </motion.h3>
             <motion.div
-              className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16"
+              className="flex flex-wrap justify-center gap-4 md:gap-6 mb-16"
               variants={widerStagger}
             >
               {boardMembers.map((m) => (
@@ -1596,7 +1596,7 @@ function Team() {
               Advisory Council
             </motion.h3>
             <motion.div
-              className="flex flex-wrap justify-center gap-6 md:gap-8 mb-16"
+              className="flex flex-wrap justify-center gap-4 md:gap-6 mb-16"
               variants={widerStagger}
             >
               {advisoryMembers.map((m) => (
@@ -1620,7 +1620,7 @@ function Team() {
               AADream Team
             </motion.h3>
             <motion.div
-              className="flex flex-wrap justify-center gap-6 md:gap-8"
+              className="flex flex-wrap justify-center gap-4 md:gap-6"
               variants={widerStagger}
             >
               {aadreamTeam.map((m) => (
