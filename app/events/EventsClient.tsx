@@ -116,7 +116,7 @@ export default function EventsClient() {
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[72px] px-5 md:px-8">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" aria-label="Home" className="flex items-center gap-2">
             <Image
               src={`${BASE}/images/logos/logo-black.png`}
               alt="Asian American Dream"

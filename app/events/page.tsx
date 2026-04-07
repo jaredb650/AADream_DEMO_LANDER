@@ -32,6 +32,20 @@ export const metadata: Metadata = {
   },
 };
 
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://asianamericandream.org" },
+    { "@type": "ListItem", position: 2, name: "Events", item: "https://asianamericandream.org/events" },
+  ],
+};
+
 export default function EventsPage() {
-  return <EventsClient />;
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <EventsClient />
+    </>
+  );
 }

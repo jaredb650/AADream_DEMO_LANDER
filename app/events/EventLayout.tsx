@@ -20,7 +20,7 @@ export default function EventLayout({ title, date, tag, heroImage, children }: E
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[72px] px-5 md:px-8">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" aria-label="Home" className="flex items-center gap-2">
             <Image
               src={`${BASE}/images/logos/logo-black.png`}
               alt="Asian American Dream"
@@ -156,17 +156,18 @@ export function ResultsTable({ flights }: { flights: { name: string; champions: 
   return (
     <div className="rounded-2xl border border-light-gray overflow-hidden my-6">
       <table className="w-full">
+        <caption className="sr-only">Tournament Results</caption>
         <thead>
           <tr className="bg-off-white">
-            <th className="font-inter font-semibold text-xs tracking-wider uppercase text-deep-teal text-left px-5 py-3">Flight</th>
-            <th className="font-inter font-semibold text-xs tracking-wider uppercase text-deep-teal text-left px-5 py-3">Champions</th>
-            <th className="font-inter font-semibold text-xs tracking-wider uppercase text-deep-teal text-left px-5 py-3">Finalists</th>
+            <th scope="col" className="font-inter font-semibold text-xs tracking-wider uppercase text-deep-teal text-left px-5 py-3">Flight</th>
+            <th scope="col" className="font-inter font-semibold text-xs tracking-wider uppercase text-deep-teal text-left px-5 py-3">Champions</th>
+            <th scope="col" className="font-inter font-semibold text-xs tracking-wider uppercase text-deep-teal text-left px-5 py-3">Finalists</th>
           </tr>
         </thead>
         <tbody>
           {flights.map((f) => (
             <tr key={f.name} className="border-t border-light-gray">
-              <td className="font-inter font-medium text-sm text-charcoal px-5 py-3">{f.name}</td>
+              <td scope="row" className="font-inter font-medium text-sm text-charcoal px-5 py-3">{f.name}</td>
               <td className="font-inter text-sm text-dark-gray px-5 py-3">{f.champions}</td>
               <td className="font-inter text-sm text-dark-gray px-5 py-3">{f.finalists}</td>
             </tr>

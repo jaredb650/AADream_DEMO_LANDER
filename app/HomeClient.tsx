@@ -239,7 +239,7 @@ function Navbar() {
     >
       <div className="max-w-[1200px] mx-auto flex items-center justify-between h-[72px] px-5 md:px-8">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2">
+        <a href="/" aria-label="Home" className="flex items-center gap-2">
           <Image
             src={scrolled ? `${BASE}/images/logos/logo-black.png` : `${BASE}/images/logos/logo-white.png`}
             alt="Asian American Dream"
@@ -2272,14 +2272,16 @@ export default function HomeClient() {
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         <Navbar />
-        <Hero />
-        <About />
-        <Programs />
-        <Impact />
-        <Team />
-        <Community />
-        <PhotoBanner />
-        <CTA />
+        <main>
+          <Hero />
+          <About />
+          <Programs />
+          <Impact />
+          <Team />
+          <Community />
+          <PhotoBanner />
+          <CTA />
+        </main>
         <Footer />
         <GiveButterContact />
       </motion.div>
