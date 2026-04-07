@@ -1401,7 +1401,7 @@ function TeamMemberCard({
   return (
     <motion.div
       variants={scaleIn}
-      className="flex flex-col items-center"
+      className="flex flex-col items-center w-[120px] md:w-[140px]"
     >
       <button
         type="button"
