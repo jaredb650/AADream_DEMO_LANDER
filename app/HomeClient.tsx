@@ -580,12 +580,14 @@ function Hero() {
                 Explore Programs
               </motion.a>
               <motion.a
-                href="#donate"
+                href="https://givebutter.com/c/galaofdreams"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-inter font-semibold text-base bg-warm-gold text-navy px-8 py-3.5 rounded-full hover:shadow-lg transition-all duration-300"
                 whileHover={{ y: -2, scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
-                Donate
+                Inaugural Gala Tickets Now Available
               </motion.a>
               <motion.a
                 href="mailto:info@asianamericandream.org?subject=Partnership%20Inquiry"
